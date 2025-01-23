@@ -1835,16 +1835,15 @@ def add_carbon_capture(data, tech_data):
     return data
 
 def add_perennials_gbr(data):
-    """function that add perennials and green biorefining (GBR).
+    """function that add perennials and green biorefining (GBR) including biogas production plant.
     it considers purchase of raw materials (perennials) and sales of other products (proteins and biogas feedstock) in the VOM
 
     references:
     R1 : https://doi.org/10.1016/B978-0-323-95879-0.50147-8
-    R2: https://doi.org/10.1016/j.scitotenv.2023.167943
     R3: https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport193.pdf
     """
     """ general paramaters"""
-    LHV_ch4 = 50 / 3600  # MWh/kg
+    LHV_ch4 = 50 / 3.6  # MWh/t
     EUR_DKK = 7.46 # €/DKK
     '''PERENNIALS AND GREEN BIOREFINING'''
 
@@ -1859,24 +1858,24 @@ def add_perennials_gbr(data):
     perennials_input_annual = perennials_input_flow * flh_y  # t_DM /y
     protein_output_flow = 1.4  # t_DM/h
     protein_output_annual = protein_output_flow * flh_y  # t_protein_concentrate / y
-    biogas_output_flow = 0.29 * biogas_ch4_vol * (LHV_ch4 * 1e3)  # MW
+    biogas_output_flow = 0.29 * biogas_ch4_vol * LHV_ch4  # (t/tDM) * (%m CH4)
     electricity_input_flow = 7.33/100 * perennials_input_flow
 
     # COSTS
-    # NOTE the biogas palt capacity is based on average annual production from GBR becasue the bioenergy output are storable
+    # NOTE the biogas plat capacity was adjusted based assuming that the biogas plant can run the whole year around
     capacity_ratio_biogas_gbr = flh_y / 8760 # we assume the feedstock from gbr can be stored
-    investment_biogas  = data.loc[('biogas','investment'), years] * biogas_output_flow / perennials_input_flow * capacity_ratio_biogas_gbr
-    investment = 1.643 * 1e6 / (20 * 1e3 / flh_y) / EUR_DKK + investment_biogas # €/tDM/h ref: R3, Table 8.1: "capital"
-    FOM = 5 # %/year ref: R3, Table 8.1: "auxiliary costs"
+    investment_biogas_adjusted  = data.loc[('biogas','investment'), 2020] * biogas_output_flow / perennials_input_flow * (capacity_ratio_biogas_gbr - 1) # €/tDM biomass
+    FOM = 0 # (%investment) Own assumption
+    investment = 9.33 * 1e6 / (40 * DM_perennials) + investment_biogas_adjusted # t/tDM/h including biogas plant ref: R1 Table 4
 
     # OPEX
-    protein_price = 3700 / EUR_DKK  # €/t ref: R3
-    perennial_cost = 980 / EUR_DKK  # €/tDM ref: R3
-    other_VOM = (1.474 + 1.2+ 0.727 - FOM/100*1.643)/20 *1e3 / EUR_DKK # €/tDM ref: R3, Table 8.1: "wages + maintenance + auxiliary cost - FOM"
+    protein_price = 535  # €/t ref: R1
+    perennial_cost = 130  # €/tDM ref: R1
+    other_VOM = (0.45 * 1e6)/ (40* DM_perennials * flh_y) # €/tDM ref: R1, Table 4: "labor and maintenance"
     VOM = (perennial_cost - protein_price * protein_output_annual / perennials_input_annual + other_VOM)  # EUR//tDM
 
     data.loc[("perennials gbr", "investment"), years] = investment
-    data.loc[("perennials gbr", "investment"), "source"] = 'calculated based on: https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport193.pdf'
+    data.loc[("perennials gbr", "investment"), "source"] = 'https://doi.org/10.1016/B978-0-323-95879-0.50147-8'
     data.loc[("perennials gbr",
               "investment"), "further description"] = "includes cost for biogas plant without upgrading"
     data.loc[("perennials gbr", "investment"), "unit"] = "EUR/tDM/h"
@@ -1895,19 +1894,18 @@ def add_perennials_gbr(data):
     data.loc[("perennials gbr", "FOM"), "unit"] = "%year"
     data.loc[("perennials gbr", "FOM"), "currency_year"] = 2020
 
-
     data.loc[("perennials gbr", "VOM"), years] = VOM
-    data.loc[("perennials gbr", "VOM"), "source"] = "calculated based on: https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport193.pdf"
+    data.loc[("perennials gbr", "VOM"), "source"] = "https://doi.org/10.1016/B978-0-323-95879-0.50147-8"
     data.loc[("perennials gbr",
               "VOM"), "further description"] = "includes purchase of perennial crops and sales of proteine concentrate, table 8.1 wages, maintenance and auxiliary costs"
     data.loc[("perennials gbr", "VOM"), "unit"] = "EUR/tDM"
     data.loc[("perennials gbr", "VOM"), "currency_year"] = 2020
 
-    data.loc[("perennials gbr", "biomethane-output"), years] = biogas_output_flow / perennials_input_flow # MWh/tDM
-    data.loc[("perennials gbr", "biomethane-output"), "source"] = "https://doi.org/10.1016/B978-0-323-95879-0.50147-8"
+    data.loc[("perennials gbr", "biogas-output"), years] = biogas_output_flow / perennials_input_flow # MWh/tDM
+    data.loc[("perennials gbr", "biogas-output"), "source"] = "https://doi.org/10.1016/B978-0-323-95879-0.50147-8"
     data.loc[("perennials gbr",
-              "biomethane-output"), "further description"] = "table 2"
-    data.loc[("perennials gbr", "biomethane-output"), "unit"] = "MWh/tDM"
+              "biogas-output"), "further description"] = "table 2"
+    data.loc[("perennials gbr", "biogas-output"), "unit"] = "MWh/tDM"
 
     data.loc[("perennials gbr", "electricity-input"), years] = electricity_input_flow / perennials_input_flow
     data.loc[("perennials gbr", "electricity-input"), "source"] = "https://doi.org/10.1016/B978-0-323-95879-0.50147-8"
