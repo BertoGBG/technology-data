@@ -1003,24 +1003,25 @@ def biochar_pyrolysis_dea (df):
     df.iloc[df.index.str.contains("Heat Output")] = df_sum   # adjust for difference in drying heat demand
 
     # normalizing costs to biomass input
-    df_div1 = pd.concat((df.iloc[df.index.str.contains("Biochar Output")],
+    df_tot_out_DEA = pd.concat((df.iloc[df.index.str.contains("Biochar Output")],
                           df.iloc[df.index.str.contains("Heat Output")]), axis=0).sum(axis=0, skipna=False)
+
 
     # remove additional heat for drying
     df.iloc[df.index.str.contains(
         "Heat Output")] = df_sum - Delta_heat_drying  # adjust for difference in drying heat demand
 
+    # Calcualte biochar yield (t biochar / MWh biomass)
     df_div2 = df.iloc[df.index.str.contains("Specific energy content")].astype(float) / 3.6
-    df.iloc[df.index.str.contains("Specific energy content")] = df.iloc[df.index.str.contains(
+    df.iloc[df.index.str.contains("Biochar Output")] = df.iloc[df.index.str.contains(
         "Biochar Output")].astype(float) / df_div2.values.astype(float)
 
-    df.rename( index={df.loc[df.index.str.contains("Specific energy content")].index.values[
+    df.rename( index={df.loc[df.index.str.contains("Biochar Output")].index.values[
                    0]: 'yield biochar [t_biochar/MWh_biomass]'}, inplace=True)
 
-
+    # drop unnecessary indexes
     to_drop = df[df.index.str.contains("Pyrolysis oil Output") |
                  df.index.str.contains("Pyrolysis gas Output") |
-                 df.index.str.contains("Biochar Output") |
                  df.index.str.contains("Feedstock Consumption")].index
     df.drop(to_drop, inplace=True)
 
@@ -1043,9 +1044,9 @@ def biochar_pyrolysis_dea (df):
                df.loc[df.index.str.contains("Electricity Consumption")].index.values[
                    0]: 'El-Input [MWh_e/t_CO2]'}, inplace=True)
 
-    # adjust cost basis to tCO2 sequestred
+    # adjust cost basis from €/MWh tot_output to €/tCO2 sequestred
     idx3 = df.index.str.contains("EUR")
-    df.loc[idx3] = df.loc[idx3].values.astype(float) / df_div1.values.astype(float) # converto to €/MWhbiom
+    df.loc[idx3] = df.loc[idx3].values.astype(float) * df_tot_out_DEA.values.astype(float) # converto to €/MWhbiom
     df.loc[idx3] = df.loc[idx3] * df.loc['Biomass Input [MWh_biomass/t_CO2]'].astype(float) # converto to € /t_CO2/h
     df.index = df.index.str.replace(" output from pyrolysis process", "", regex=True)
 
