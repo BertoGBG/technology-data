@@ -548,11 +548,11 @@ battery inverter,lifetime,10.0,years,"Danish Energy Agency, technology_data_cata
 battery storage,investment,150.2675,EUR/kWh,"Danish Energy Agency, technology_data_catalogue_for_energy_storage.xlsx",:  Energy storage expansion cost investment,2015.0
 battery storage,lifetime,25.0,years,"Danish Energy Agency, technology_data_catalogue_for_energy_storage.xlsx",:  Technical lifetime,2015.0
 biochar pyrolysis,FOM,3.4167,%/year,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Fixed O&M",2020.0
-biochar pyrolysis,VOM,57.2239,EUR/t_CO2,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Variable O&M",2020.0
+biochar pyrolysis,VOM,47.6777,EUR/t_CO2,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Variable O&M",2020.0
 biochar pyrolysis,biomass input,7.6748,MWh_biomass/t_CO2,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Biomass Input",2020.0
 biochar pyrolysis,electricity input,0.3184,MWh_e/t_CO2,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  El-Input",2020.0
 biochar pyrolysis,heat output,3.7859,MWh_th/t_CO2,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  H-Output",2020.0
-biochar pyrolysis,investment,10729475.2946,EUR/t_CO2/h,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Specific investment",2020.0
+biochar pyrolysis,investment,8939565.2069,EUR/t_CO2/h,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Specific investment",2020.0
 biochar pyrolysis,lifetime,25.0,years,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Technical lifetime",2020.0
 biochar pyrolysis,yield-biochar,0.0597,t_biochar/MWh_biomass,"Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  yield biochar",2020.0
 biodiesel crops,fuel,137.6508,EUR/MWhth,"JRC ENSPRESO ca avg for MINBIORPS1 (rape seed), ENS_BaU_GFTM",,2010.0
