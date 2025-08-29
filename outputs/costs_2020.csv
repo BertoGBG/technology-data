@@ -1,7 +1,7 @@
 technology,parameter,value,unit,source,further description,currency_year
 Afforestation,FOM,10.0,%/year,https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515,,2020.0
 Afforestation,investment,11671.0,EUR/ha,https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515,,2020.0
-Afforestation,lifetime,20.0,years,https://onlinelibrary.wiley.com/doi/full/10.1111/rec.13515,,
+Afforestation,lifetime,25.0,years,https://onlinelibrary.wiley.com/doi/full/10.1111/rec.13515,,
 Alkaline electrolyzer,FOM,0.04,%/year,ICCT IRA e-fuels assumptions ,,2022.0
 Alkaline electrolyzer,efficiency,0.65,p.u.,ICCT IRA e-fuels assumptions ,,
 Alkaline electrolyzer,investment,1019.8742,USD/kW,ICCT IRA e-fuels assumptions ,,2022.0
