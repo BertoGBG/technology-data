@@ -2204,6 +2204,41 @@ def add_manual_input(data):
     return data
 
 
+def add_manual_input_industry(data):
+    # function that adds manual inputs for industrial components
+    df = pd.read_csv(snakemake.input['manual_input_industry'], quotechar='"', sep=',', keep_default_na=False)
+    df = df.rename(columns={"further_description": "further description"})
+
+    l = []
+    for tech in df['technology'].unique():
+        c0 = df[df['technology'] == tech]
+        for param in c0['parameter'].unique():
+
+            c = df.query('technology == @tech and parameter == @param')
+
+            s = pd.Series(index=snakemake.config['years'],
+                          data=np.interp(snakemake.config['years'], c['year'], c['value']),
+                          name=param)
+            s['parameter'] = param
+            s['technology'] = tech
+            try:
+                s["currency_year"] = int(c["currency_year"].values[0])
+            except ValueError:
+                s["currency_year"] = np.nan
+            for col in ['unit', 'source', 'further description']:
+                s[col] = "; and\n".join(c[col].unique().astype(str))
+            s = s.rename({
+                             "further_description": "further description"})  # match column name between manual_input and original TD workflow
+            l.append(s)
+
+    new_df = pd.DataFrame(l).set_index(['technology', 'parameter'])
+    data.index.set_names(["technology", "parameter"], inplace=True)
+    # overwrite DEA data with manual input
+    data = new_df.combine_first(data)
+
+    return data
+
+
 def rename_ISE(costs_ISE):
     """
     rename ISE costs to fit to tech data

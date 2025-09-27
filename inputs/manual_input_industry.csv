@@ -1,0 +1,38 @@
+technology,parameter,year,value,unit,currency_year,source,further_description
+CO2 storage cylinders,investment,2025,77000,EUR/tCO2,2020,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+CO2 storage cylinders,FOM,2025,1,%/year,202,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+CO2 storage cylinders,lifetime,2025,25,years,2020,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+CO2 industrial compressor,investment,2025,1516000,EUR/t/h_CO2,2020,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+CO2 industrial compressor,FOM,2025,4,%/year,2020,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+CO2 industrial compressor,lifetime,2025,15,years,2020,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+biogas storage,investment,2025,16750,EUR/MWh_biogas,2020,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+biogas storage,FOM,2020,0.2,%/year,2025,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+biogas storage,lifetime,2020,15,years,2025,"Aarhus University BCE estimate". TODO: Find better technology data and cost assumptions,
+centrifugal dewatering,investment,2025,130000,EUR/t/h fibers,2020,"https://doi.org/10.3390/agronomy11050836".
+centrifugal dewatering,FOM,2020,3.5,%/year,2025,"https://doi.org/10.3390/agronomy11050836".
+centrifugal dewatering,lifetime,2020,20,years,2025," https://doi.org/10.3390/su16135461".
+centrifugal dewatering,electricity-input,2020,2.2,MW/tDM_in,2025,"https://doi.org/10.3390/su16135461".
+centrifugal dewatering,DM separation,2020,0.509,kg_out/kg_in,2025,"https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf".
+centrifugal dewatering,DM out,2020,0.45,kgDM/kgtot,2025,"https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf".
+biomass belt dryer,heat-input,2025,1,MWh/t_H2O removed,2020,"DOI: 10.1080/07373937.2018.1492615".
+biomass belt dryer,electricity-input,2025,0.025,MWh/t_H2O removed,2020,"DOI: 10.1080/07373937.2018.1492615".
+biomass belt dryer,FOM,2025,3,%/year,2020,"DOI: 10.1080/07373937.2018.1492615".
+biomass belt dryer,lifetime,2025,20,years,2020,"DOI: 10.1080/07373937.2018.1492615".
+pelletization,investment,2025,0,EUR/MW_pellets,2020,"Own assumption: find better". TODO: Find better technology data and cost assumptions,
+pelletization,FOM,2020,3,%/year,2025,"Own assumption: find better". TODO: Find better technology data and cost assumptions,
+pelletization,lifetime,2020,15,years,2025,"Own assumption: find better". TODO: Find better technology data and cost assumptions,
+pelletization,electricity-input,2020,0.1,MW_e/MW_pellets,2025,"Own assumption: find better". TODO: Find better technology data and cost assumptions,
+DH heat exchanger,investment,2025,140.162,EUR/MW,2020,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years".
+DH heat exchanger,FOM,2020,0.1,%/year,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years".
+DH heat exchanger,lifetime,2020,35,years,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years".
+PWH pipe,investment,2025,63000,EUR/MW/km,2020,"DEA Technology data for transport of energy",'Heat exchanged for DH transmission, sheet 113_11. constant for all years',
+PWH pipe,FOM,2020,0.1,%/year,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years".
+PWH pipe,lifetime,2020,45,years,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years".
+CO2 gas pipe,investment,2025,130000,EUR/(t/h)/km,2020,'DEA Technology Data for Carbon Capture, Transport and Storage','sheet 421 co2 pipeline. constant for all years'.
+CO2 gas pipe,FOM,2020,0.1,%/year,2025,'DEA Technology Data for Carbon Capture, Transport and Storage','sheet 421 co2 pipeline. constant for all years'.
+CO2 gas pipe,lifetime,2020,50,years,2025,'DEA Technology Data for Carbon Capture, Transport and Storage','sheet 421 co2 pipeline. constant for all years'.
+H2 pipe,investment,2025,38000,EUR/MW/km,2020,"DEA Technology data for transport of energy",'sheet H70. 70 bar pipeline '.
+H2 pipe,FOM,2020,0.1,%/year,2025,"DEA Technology data for transport of energy",'sheet H70. 70 bar pipeline '.
+H2 pipe,lifetime,2020,30,years,2025,"DEA Technology data for transport of energy",'sheet H70. 70 bar pipeline '.
+
+
