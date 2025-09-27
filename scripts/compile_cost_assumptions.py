@@ -3130,6 +3130,7 @@ if __name__ == "__main__":
     data = pd.concat([data, costs_ISE.loc[["Gasnetz"]]], sort=True)
 
     data = add_manual_input(data)
+    data = add_manual_input_industry(data)
     # add costs for home batteries
 
     if snakemake.config["energy_storage_database"].get("ewg_home_battery", True):
