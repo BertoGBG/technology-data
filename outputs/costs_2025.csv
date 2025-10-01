@@ -789,7 +789,7 @@ central water-sourced heat pump,lifetime,40.0,years,"Danish Energy Agency, techn
 centrifugal dewatering,DM out,0.45,kgDM/kgtot,https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf,,2025.0
 centrifugal dewatering,DM separation,0.509,kg_out/kg_in,https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf,,2025.0
 centrifugal dewatering,FOM,3.5,%/year,https://doi.org/10.3390/agronomy11050836,,2025.0
-centrifugal dewatering,electricity-input,2.2,MW/tDM_in,https://doi.org/10.3390/su16135461,,2025.0
+centrifugal dewatering,electricity-input,0.005,MWh/tDM_in,calc from : https://doi.org/10.3390/su16135461,,2025.0
 centrifugal dewatering,investment,130000.0,EUR/t/h fibers,https://doi.org/10.3390/agronomy11050836,,2020.0
 centrifugal dewatering,lifetime,20.0,years, https://doi.org/10.3390/su16135461,,2025.0
 clean water tank storage,FOM,2.0,%/year,"Caldera et al 2016: Local cost of seawater RO desalination based on solar PV and windenergy: A global estimate. (https://doi.org/10.1016/j.desal.2016.02.004), Table 1.",,
