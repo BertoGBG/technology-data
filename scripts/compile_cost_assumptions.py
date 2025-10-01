@@ -2169,11 +2169,16 @@ def rename_pypsa_old(costs_pypsa):
 
     return costs_pypsa
 
-def add_manual_input(data):
+def add_manual_input(data, exclusions=None):
 
     df = pd.read_csv(snakemake.input['manual_input'], quotechar='"',sep=',', keep_default_na=False)
     df = df.rename(columns={"further_description": "further description"})
 
+
+    # --- exact-match exclusion (case-sensitive) ---
+    if exclusions:
+        df = df[~df['technology'].isin(exclusions)].copy()
+    # ---------------------------------------------------
    
     l = []
     for tech in df['technology'].unique():
@@ -2204,10 +2209,15 @@ def add_manual_input(data):
     return data
 
 
-def add_manual_input_industry(data):
+def add_manual_input_industry(data, exclusions=None):
     # function that adds manual inputs for industrial components
     df = pd.read_csv(snakemake.input['manual_input_industry'], quotechar='"', sep=',', keep_default_na=False)
     df = df.rename(columns={"further_description": "further description"})
+
+    # --- exact-match exclusion (case-sensitive) ---
+    if exclusions:
+        df = df[~df['technology'].isin(exclusions)].copy()
+    # ---------------------------------------------------
 
     l = []
     for tech in df['technology'].unique():
@@ -3129,7 +3139,8 @@ if __name__ == "__main__":
     # add costs for gas pipelines
     data = pd.concat([data, costs_ISE.loc[["Gasnetz"]]], sort=True)
 
-    data = add_manual_input(data)
+    exclusions = ['electrolysis']
+    data = add_manual_input(data, exclusions =exclusions)
     data = add_manual_input_industry(data)
     # add costs for home batteries
 
