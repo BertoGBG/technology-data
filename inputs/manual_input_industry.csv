@@ -34,5 +34,13 @@ CO2 gas pipe,lifetime,2020,50,years,2025,"DEA Technology Data for Carbon Capture
 H2 pipe,investment,2025,38000,EUR/MW/km,2020,"DEA Technology data for transport of energy","sheet H70. 70 bar pipeline"
 H2 pipe,FOM,2020,0.1,%/year,2025,"DEA Technology data for transport of energy","sheet H70. 70 bar pipeline"
 H2 pipe,lifetime,2020,30,years,2025,"DEA Technology data for transport of energy","sheet H70. 70 bar pipeline"
-
+CO2 storage tank small,investment,2025,3800,EUR/t_CO2,2024,DEA technology data for carbon capture and storage V.3,"412 intermediate storage of CO2 - for biogas plants."
+CO2 storage tank small,FOM,2025,3,%/year,2024,DEA technology data for carbon capture and storage V.3,"412 intermediate storage of CO2 - for biogas plants."
+CO2 storage tank small,lifetime,2025,25,years,2024,DEA technology data for carbon capture and storage V.3,"412 intermediate storage of CO2 - for biogas plants."
+CO2 liquefaction small,investment,2025,665000 ,EUR/t_CO2/h,2024,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants."
+CO2 liquefaction small,FOM,2025,4,%/year,2024,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants."
+CO2 liquefaction small,lifetime,2025,20,years,2024,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants."
+CO2 liquefaction small,CO2-input,2025,1,t_CO2/t_CO2,-,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants."
+CO2 liquefaction small,heat-output,2025,0.250,MWh_th/t_CO2,-,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants."
+CO2 liquefaction small,electricity-input,2025,0.185,MWh_el/t_CO2,-,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants - storage at 16 bara and -27C, including pumping into storage tanks."
 
