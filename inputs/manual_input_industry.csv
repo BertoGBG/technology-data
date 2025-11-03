@@ -1,27 +1,27 @@
 technology,parameter,year,value,unit,currency_year,source,further_description
-CO2 storage cylinders,investment,2025,77000,EUR/tCO2,2020,"Aarhus University BCE estimate"
-CO2 storage cylinders,FOM,2025,1,%/year,202,"Aarhus University BCE estimate"
-CO2 storage cylinders,lifetime,2025,25,years,2020,"Aarhus University BCE estimate"
-CO2 industrial compressor,investment,2025,1516000,EUR/t/h_CO2,2020,"Aarhus University BCE estimate"
-CO2 industrial compressor,FOM,2025,4,%/year,2020,"Aarhus University BCE estimate"
-CO2 industrial compressor,lifetime,2025,15,years,2020,"Aarhus University BCE estimate"
-biogas storage,investment,2025,16750,EUR/MWh_biogas,2020,"Aarhus University BCE estimate"
-biogas storage,FOM,2020,0.2,%/year,2025,"Aarhus University BCE estimate"
-biogas storage,lifetime,2020,15,years,2025,"Aarhus University BCE estimate"
-centrifugal dewatering,investment,2025,130000,EUR/t/h fibers,2020,"https://doi.org/10.3390/agronomy11050836"
-centrifugal dewatering,FOM,2020,3.5,%/year,2025,"https://doi.org/10.3390/agronomy11050836"
-centrifugal dewatering,lifetime,2020,20,years,2025," https://doi.org/10.3390/su16135461"
-centrifugal dewatering,electricity-input,2020,0.005,MWh/tDM_in,2025,"calc from : https://doi.org/10.3390/su16135461"
-centrifugal dewatering,DM separation,2020,0.509,kg_out/kg_in,2025,"https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf"
-centrifugal dewatering,DM out,2020,0.45,kgDM/kgtot,2025,"https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf"
-biomass belt dryer,heat-input,2025,1,MWh/t_H2O removed,2020,"DOI: 10.1080/07373937.2018.1492615"
-biomass belt dryer,electricity-input,2025,0.025,MWh/t_H2O removed,2020,"DOI: 10.1080/07373937.2018.1492615"
-biomass belt dryer,FOM,2025,3,%/year,2020,"DOI: 10.1080/07373937.2018.1492615"
-biomass belt dryer,lifetime,2025,20,years,2020,"DOI: 10.1080/07373937.2018.1492615"
-pelletization,investment,2025,0,EUR/MW_pellets,2020,"Own assumption: find better"
-pelletization,FOM,2020,3,%/year,2025,"Own assumption: find better"
-pelletization,lifetime,2020,15,years,2025,"Own assumption: find better"
-pelletization,electricity-input,2020,0.1,MW_e/MW_pellets,2025,"Own assumption: find better"
+CO2 storage cylinders,investment,2025,77000,EUR/tCO2,2020,"Aarhus University BCE estimate",
+CO2 storage cylinders,FOM,2025,1,%/year,202,"Aarhus University BCE estimate",
+CO2 storage cylinders,lifetime,2025,25,years,2020,"Aarhus University BCE estimate",
+CO2 industrial compressor,investment,2025,1516000,EUR/t/h_CO2,2020,"Aarhus University BCE estimate",
+CO2 industrial compressor,FOM,2025,4,%/year,2020,"Aarhus University BCE estimate",
+CO2 industrial compressor,lifetime,2025,15,years,2020,"Aarhus University BCE estimate",
+biogas storage,investment,2025,16750,EUR/MWh_biogas,2020,"Aarhus University BCE estimate",
+biogas storage,FOM,2020,0.2,%/year,2025,"Aarhus University BCE estimate",
+biogas storage,lifetime,2020,15,years,2025,"Aarhus University BCE estimate",
+centrifugal dewatering,investment,2025,130000,EUR/t/h fibers,2020,"https://doi.org/10.3390/agronomy11050836",
+centrifugal dewatering,FOM,2020,3.5,%/year,2025,"https://doi.org/10.3390/agronomy11050836",
+centrifugal dewatering,lifetime,2020,20,years,2025," https://doi.org/10.3390/su16135461",
+centrifugal dewatering,electricity-input,2020,0.005,MWh/tDM_in,2025,"calc from : https://doi.org/10.3390/su16135461",
+centrifugal dewatering,DM separation,2020,0.509,kg_out/kg_in,2025,"https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf",
+centrifugal dewatering,DM out,2020,0.45,kgDM/kgtot,2025,"https://dcapub.au.dk/djfpublikation/djfpdf/DCArapport208.pdf",
+biomass belt dryer,heat-input,2025,1,MWh/t_H2O removed,2020,"DOI: 10.1080/07373937.2018.1492615",
+biomass belt dryer,electricity-input,2025,0.025,MWh/t_H2O removed,2020,"DOI: 10.1080/07373937.2018.1492615",
+biomass belt dryer,FOM,2025,3,%/year,2020,"DOI: 10.1080/07373937.2018.1492615",
+biomass belt dryer,lifetime,2025,20,years,2020,"DOI: 10.1080/07373937.2018.1492615",
+pelletization,investment,2025,0,EUR/MW_pellets,2020,"Own assumption: find better",
+pelletization,FOM,2020,3,%/year,2025,"Own assumption: find better",
+pelletization,lifetime,2020,15,years,2025,"Own assumption: find better",
+pelletization,electricity-input,2020,0.1,MW_e/MW_pellets,2025,"Own assumption: find better",
 DH heat exchanger,investment,2025,140.162,EUR/MW,2020,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
 DH heat exchanger,FOM,2020,0.1,%/year,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
 DH heat exchanger,lifetime,2020,35,years,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
