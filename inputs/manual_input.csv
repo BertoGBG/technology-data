@@ -506,5 +506,5 @@ Enhanced Weathering,VOM,2020,166.15,EUR/h/tCO2,2014," Jessica Strefler et al 201
 Enhanced Weathering,electricity-input,2020,0.1852,MWh/tCO2 ,, Jessica Strefler et al 2018 Environ. Res. Lett. 13 034010 https://doi.org/10.1088/1748-9326/aaa9c4,,,
 Enhanced Weathering,lifetime,2020,1,years,,costs are given per year,,,
 Afforestation,lifetime,2025,30,years,-,"https://onlinelibrary.wiley.com/doi/full/10.1111/rec.13515",
-Afforestation,FOM,2025,10,%/year,2020,"https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515",
-Afforestation,investment,2025,23247,EUR/ha,2020,"https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515",
+Afforestation,FOM,2025,5,%/year,2020,"https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515",
+Afforestation,investment,2025,11671,EUR/ha,2020,"https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515",

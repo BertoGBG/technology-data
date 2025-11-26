@@ -963,6 +963,7 @@ def biochar_pyrolysis_dea (df):
 
     # definition of solid biomass in pypsa
     solid_biomass_df = biomass_properties()
+    print('solid_biomass', solid_biomass_df)
     biomass_specific_energy = solid_biomass_df.at['biomass_specific_energy','value'] / 3.6  # MWh/t_biom LHV
     biomass_carbon_content = solid_biomass_df.at['biomass_carbon_content','value']  # tC/tbiomass_DM
     biomass_moisture_content = solid_biomass_df.at['biomass_moisture_content','value']  # th2o/tbiom
@@ -1028,6 +1029,12 @@ def biochar_pyrolysis_dea (df):
     # Calculated biochar Carbon content from: PyPSA-Eur solid biomass and DEA pyrolysis inputs
     # Cw_biochar (tC_biochar/tbiochar) = (tC_feedstock/t_feedstock) * (tfeedstcok/GJfeedstock) * (GJ feedstock / t biochar) * (tCbiochar / tC feedstock)
     biochar_carbon_content = biomass_carbon_content * (1 - pyrolysis_feedstock_moisture_content) / pyrolysis_feedstock_specific_energy / df.loc['yield biochar [t_biochar/MWh_biomass]',:] * C_biochar_feedstock_ratio  # tC/tbiochar
+    print('biochar_carbon_content', biochar_carbon_content)
+    print('biomass_carbon_content', biomass_carbon_content)
+    print('pyrolysis_feedstock_moisture_content',pyrolysis_feedstock_moisture_content)
+    print('pyrolysis_feedstock_specific_energy', pyrolysis_feedstock_specific_energy)
+    print('yield biochar (tbiochar/MWh_biom', df.loc['yield biochar [t_biochar/MWh_biomass]',:])
+    print('C_biochar_feedstock_ratio', C_biochar_feedstock_ratio)
 
     # Calculated CO2 sequestration in biochar per unit of biomass
     # CO2seq_biomass =  (tC/tbiochar) * (tbiochar/GJbiomass) * (tbiochar>100y /tbiochar)
