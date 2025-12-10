@@ -507,4 +507,4 @@ Enhanced Weathering,electricity-input,2020,0.1852,MWh/tCO2 ,, Jessica Strefler e
 Enhanced Weathering,lifetime,2020,1,years,,costs are given per year,,,
 Afforestation,lifetime,2025,30,years,-,"https://onlinelibrary.wiley.com/doi/full/10.1111/rec.13515",
 Afforestation,FOM,2025,5,%/year,2020,"https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515",
-Afforestation,investment,2025,11671,EUR/ha,2020,"https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515",
+Afforestation,investment,2025,7749,EUR/ha,2020,"https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515",
