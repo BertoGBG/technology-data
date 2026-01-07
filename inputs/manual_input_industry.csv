@@ -43,4 +43,6 @@ CO2 liquefaction small,lifetime,2025,20,years,2024,DEA technology data for carbo
 CO2 liquefaction small,CO2-input,2025,1,t_CO2/t_CO2,-,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants."
 CO2 liquefaction small,heat-output,2025,0.250,MWh_th/t_CO2,-,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants."
 CO2 liquefaction small,electricity-input,2025,0.185,MWh_el/t_CO2,-,DEA technology data for carbon capture and storage V.3,"411 liquefaction - for biogas plants - storage at 16 bara and -27C, including pumping into storage tanks."
-
+NG grid connection,investment,2025,1450,EUR/MW,2025,"https://evida.dk/tarifblad010125/","EVIDA.DK"
+NG grid connection,FOM,2020,0.2,%/year,2025,"https://evida.dk/tarifblad010125/","EVIDA.DK"
+NG grid connection,lifetime,2020,40,years,2025,"Own assumption",""
