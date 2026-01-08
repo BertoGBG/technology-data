@@ -170,6 +170,7 @@ Concrete-store,lifetime,35.0,years,"Viswanathan_2022, p.107 (p.129)","{'carrier'
 "Container, methanol",investment,131618242.0136,EUR,"Danish Energy Agency, inputs/data_sheets_for_maritime_commercial_freight_and_passenger_transport.xlsx","Container, methanol",2023.0
 "Container, methanol",lifetime,31.0,years,"Danish Energy Agency, inputs/data_sheets_for_maritime_commercial_freight_and_passenger_transport.xlsx","Container, methanol",2023.0
 DH heat exchanger,FOM,0.1,%/year,DEA Technology data for transport of energy,"Heat exchanged for DH transmission, sheet 113_11. constant for all years",2025.0
+DH heat exchanger,efficiency,0.95, - ,DEA Technology data for transport of energy,"Heat exchanged for DH transmission, sheet 113_11. constant for all years",2025.0
 DH heat exchanger,investment,140.162,EUR/MW,DEA Technology data for transport of energy,"Heat exchanged for DH transmission, sheet 113_11. constant for all years",2020.0
 DH heat exchanger,lifetime,35.0,years,DEA Technology data for transport of energy,"Heat exchanged for DH transmission, sheet 113_11. constant for all years",2025.0
 Diesel Bus city,FOM,0.0004,%/year,"Danish Energy Agency, inputs/data_sheets_for_commercial_freight_and_passenger_transport_0.xlsx",Diesel B1,2022.0

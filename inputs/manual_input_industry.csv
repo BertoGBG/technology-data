@@ -25,6 +25,7 @@ pelletization,electricity-input,2020,0.1,MW_e/MW_pellets,2025,"Own assumption: f
 DH heat exchanger,investment,2025,140.162,EUR/MW,2020,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
 DH heat exchanger,FOM,2020,0.1,%/year,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
 DH heat exchanger,lifetime,2020,35,years,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
+DH heat exchanger,efficiency,2020,0.95, - ,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
 PWH pipe,investment,2025,63000,EUR/MW/km,2020,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
 PWH pipe,FOM,2020,0.1,%/year,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
 PWH pipe,lifetime,2020,45,years,2025,"DEA Technology data for transport of energy","Heat exchanged for DH transmission, sheet 113_11. constant for all years"
