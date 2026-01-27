@@ -730,3 +730,7 @@ oil,fuel,2025,34.2,EUR/MWh,2025,"World Bank (2025) Commodity Markets, https://ww
 oil,fuel,2030,34.7,EUR/MWh,2021,"ENTSO-E & ENTSOG TYNDP 2024 Scenarios Inputs Commodity Prices, https://2024-data.entsos-tyndp-scenarios.eu/files/scenarios-inputs/Prices.zip, accessed: 2026-02-03.","Based on IEA 2022 (APS) data, 3.6 GJ/MWh, heavy oil, modelled from crude oil price (+5%)"
 oil,fuel,2040,33.6,EUR/MWh,2021,"ENTSO-E & ENTSOG TYNDP 2024 Scenarios Inputs Commodity Prices, https://2024-data.entsos-tyndp-scenarios.eu/files/scenarios-inputs/Prices.zip, accessed: 2026-02-03.","Based on IEA 2022 (APS) data, 3.6 GJ/MWh, heavy oil, modelled from crude oil price (+5%)"
 oil,fuel,2050,32.5,EUR/MWh,2021,"ENTSO-E & ENTSOG TYNDP 2024 Scenarios Inputs Commodity Prices, https://2024-data.entsos-tyndp-scenarios.eu/files/scenarios-inputs/Prices.zip, accessed: 2026-02-03.","Based on IEA 2022 (APS) data, 3.6 GJ/MWh, heavy oil, modelled from crude oil price (+5%)"
+Enhanced Weathering,investment,2020,110099,EUR/tCO2,2014," Jessica Strefler et al 2018 Environ. Res. Lett. 13 034010 https://doi.org/10.1088/1748-9326/aaa9c4, conversion 0.7541 EUR/US (2014)",
+Enhanced Weathering,VOM,2020,166.15,EUR/h/tCO2,2014," Jessica Strefler et al 2018 Environ. Res. Lett. 13 034010 https://doi.org/10.1088/1748-9326/aaa9c4, conversion 0.7541 EUR/US (2014)",
+Enhanced Weathering,electricity-input,2020,0.1852,MWh/tCO2 ,, Jessica Strefler et al 2018 Environ. Res. Lett. 13 034010 https://doi.org/10.1088/1748-9326/aaa9c4,
+Enhanced Weathering,lifetime,2020,1,years,,costs are given per year,
