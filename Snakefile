@@ -28,6 +28,7 @@ rule compile_cost_assumptions:
         dea_ccts="inputs/technology_data_for_carbon_capture_transport_storage.xlsx",
         pnnl_energy_storage="inputs/pnnl-energy-storage-database.xlsx",
         manual_input="inputs/manual_input.csv",
+        manual_input_extra="inputs/manual_input_extra.csv",
     output:
         expand("outputs/costs_{year}.csv", year=config["years"]),
     threads: 1
