@@ -976,7 +976,7 @@ def get_data_DEA(
         df.index = df.index.str.replace("EUR/MWeh", "EUR/MWh")
 
     if "biochar pyrolysis" in tech_name:
-        df = biochar_pyrolysis_harmonise_dea(df)
+        df = biochar_pyrolysis_dea(df)
 
     if "biomethanation" in tech_name:
         df = biomethanation_dea(df)
@@ -1117,6 +1117,33 @@ def add_desalination_data(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
     )
 
     return cost_dataframe
+
+def biomass_properties():
+    """ function that harmonises the properties of solid biomass properties with biomass potentials (JRC ENSPRESO)
+    NOTE: all energy contents are on Lower Heating Value (LHV)"""
+
+    idx_biomass = ['biomass_specific_energy_DM', 'biomass_carbon_content', 'biomass_moisture_content',
+                   'water_evap_heat', 'biomass_specific_energy', 'pyrolysis_feedstock_moisture_content',
+                   'pyrolysis_feedstock_specific_energy']
+    cols_biomass = ['value', 'unit']
+    units = ['GJ/t_DM', 'tC/t_biom_DM', 't_h2o/t_biom', 'GJ/t_h2o', 'GJ/t_biom', 't_h2o/t_pyrofeed', 'GJ/t_pyrofeed']
+    solid_biomass_df = pd.DataFrame(index=idx_biomass, data=0, columns=cols_biomass)
+    solid_biomass_df = solid_biomass_df.astype({'value': 'float', 'unit': 'object'})
+    solid_biomass_df.loc[:, 'unit'] = units
+
+    solid_biomass_df.at['biomass_specific_energy_DM', 'value'] = 18
+    solid_biomass_df.at['biomass_carbon_content', 'value'] = 0.5
+    solid_biomass_df.at['biomass_moisture_content', 'value'] = 0.15
+    solid_biomass_df.at['water_evap_heat', 'value'] = 2.44
+    solid_biomass_df.at['pyrolysis_feedstock_moisture_content', 'value'] = 0.1
+
+    LHV_solid_biomass = solid_biomass_df.at['biomass_specific_energy_DM','value'] * (1-solid_biomass_df.at['biomass_moisture_content','value']) - solid_biomass_df.at['biomass_moisture_content','value'] * solid_biomass_df.at['water_evap_heat','value']
+    LHV_pyrolysis_feedstock = solid_biomass_df.at['biomass_specific_energy_DM','value'] * (1-solid_biomass_df.at['pyrolysis_feedstock_moisture_content','value']) - solid_biomass_df.at['pyrolysis_feedstock_moisture_content','value'] * solid_biomass_df.at['water_evap_heat','value']
+
+    solid_biomass_df.at['biomass_specific_energy', 'value'] = LHV_solid_biomass
+    solid_biomass_df.at['pyrolysis_feedstock_specific_energy', 'value'] = LHV_pyrolysis_feedstock
+
+    return solid_biomass_df
 
 
 def add_co2_intensity(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -1395,102 +1422,115 @@ def biomethanation_dea(df):
     return df
 
 
-def biochar_pyrolysis_harmonise_dea(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    The function harmonises biochar and pyrolysis costs.
+def biochar_pyrolysis_dea (df):
+    """This function does:
+    1) defined the properties of solid biomass in pypsa-eur: moisture, LHV dry and LHV moist
+    2) defines the properties of the feedstock for pyrolysis (dried biomass)
+    3) calculates the energy required for drying the biomass to feedstock to the inlet of pyrolysis
+    4) imports the DEA data for biochar pyrolysis
+    5) re-calculate the parameters from DEA per MWh of biomass in pypsa-eur.
+    6) if not specified all values refer to DEA renewable fuels"""
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        costs
+    # definition of solid biomass in pypsa
+    solid_biomass_df = biomass_properties()
+    biomass_specific_energy = solid_biomass_df.at['biomass_specific_energy','value'] / 3.6  # MWh/t_biom LHV
+    biomass_carbon_content = solid_biomass_df.at['biomass_carbon_content','value']  # tC/tbiomass_DM
+    biomass_moisture_content = solid_biomass_df.at['biomass_moisture_content','value']  # th2o/tbiom
 
-    Returns
-    -------
-    pandas.DataFrame
-        updated cost dataframe
-    """
+    # definition of  feedstock for pyrolysis
+    pyrolysis_feedstock_moisture_content = solid_biomass_df.at['pyrolysis_feedstock_moisture_content','value']  # t H2O/ t feedstock
+    pyrolysis_feedstock_specific_energy = solid_biomass_df.at['pyrolysis_feedstock_specific_energy','value'] / 3.6  # LHV feedstock (MWh /t feedstock)
+
+    # mass ratio between feedstock and solid biomass
+    pyrolysis_feedstock_biomass_mass_ratio = (pyrolysis_feedstock_moisture_content / (1 - pyrolysis_feedstock_moisture_content) + (1 - biomass_moisture_content))  # (t_feedstock / t_biomass) after drying
+    pyrolysis_feedstock_biomass_energy_ratio = pyrolysis_feedstock_biomass_mass_ratio * pyrolysis_feedstock_specific_energy / biomass_specific_energy  # MWh feedstock / MWh biomass input to the process
+
+    # Updated pre-treatment heat demand. DEA includes drying (13% - 10%)
+    heat_drying = 0.83 # MWh/tH2O removed
+    Delta_heat_drying = heat_drying * (biomass_moisture_content / (1 - biomass_moisture_content) - 0.13 / (1 - 0.13)) * (
+                1 - biomass_moisture_content) / biomass_specific_energy  # (MWh heat/MWh LHV biomass)
+
+    # DEA pyrolysis carbon balance
+    C_biochar_feedstock_ratio = 0.5  # (%) of carbon from original biomass contained in biochar - from DEA (for straw)
+
+    # Assumption on biochar stability in soil beyond 100 years
+    biochar_100years = 0.7  # tC >100 years /tC application https://www.nature.com/articles/s41558-023-01604-9
 
     # data for 2020 not available
     if 2020 in df.columns:
         df.drop(columns=2020, inplace=True)
+
     # normalize biochar and total heat output to feedstock input
     idx = df.index.str.contains("Total Input")
     idx2 = df.index.str.contains("Feedstock Consumption")
-    df.loc[idx] = df.loc[idx].astype(float) / df.loc[idx2].values.astype(float)
-    df.index = df.index.str.replace("Total Input", "feedstock")
+    df.loc[idx] = df.loc[idx].astype(float) / df.loc[idx2].values.astype(float) * pyrolysis_feedstock_biomass_energy_ratio
+    df.index = df.index.str.replace("Total Input", "biomass")
 
     # all pyrolysis product except char are combusted for heat
     df_sum = pd.concat(
-        (
-            df.iloc[df.index.str.contains("Pyrolysis oil Output")],
-            df.iloc[df.index.str.contains("Pyrolysis gas Output")],
-            df.iloc[df.index.str.contains("Heat Output")],
-        ),
-        axis=0,
-    ).sum(axis=0, skipna=False)
-    df.iloc[df.index.str.contains("Heat Output")] = df_sum * 100
+        (df.iloc[df.index.str.contains("Pyrolysis oil Output")],
+         df.iloc[df.index.str.contains("Pyrolysis gas Output")],
+         df.iloc[df.index.str.contains("Heat Output")]), axis=0).sum(axis=0, skipna=False)
+    df.iloc[df.index.str.contains("Heat Output")] = df_sum   # adjust for difference in drying heat demand
 
-    to_drop = df[
-        df.index.str.contains("Pyrolysis oil Output")
-        | df.index.str.contains("Pyrolysis gas Output")
-        | df.index.str.contains("Electricity Consumption")
-        | df.index.str.contains("Feedstock Consumption")
-    ].index
+    # normalizing costs to biomass input
+    df_tot_out_DEA = pd.concat((df.iloc[df.index.str.contains("Biochar Output")],
+                          df.iloc[df.index.str.contains("Heat Output")]), axis=0).sum(axis=0, skipna=False)
+
+
+    # remove additional heat for drying
+    df.iloc[df.index.str.contains(
+        "Heat Output")] = df_sum - Delta_heat_drying  # adjust for difference in drying heat demand
+
+    # Calculate biochar yield (t biochar / MWh biomass)
+    df_div2 = df.iloc[df.index.str.contains("Specific energy content")].astype(float) / 3.6
+    df.iloc[df.index.str.contains("Biochar Output")] = df.iloc[df.index.str.contains(
+        "Biochar Output")].astype(float) / df_div2.values.astype(float)
+
+    df.rename( index={df.loc[df.index.str.contains("Biochar Output")].index.values[
+                   0]: 'yield biochar [t_biochar/MWh_biomass]'}, inplace=True)
+
+    # drop unnecessary indexes
+    to_drop = df[df.index.str.contains("Pyrolysis oil Output") |
+                 df.index.str.contains("Pyrolysis gas Output") |
+                 df.index.str.contains("Feedstock Consumption")].index
     df.drop(to_drop, inplace=True)
 
-    # normalizing costs to biochar output
-    df_divid = pd.concat(
-        (
-            df.iloc[df.index.str.contains("Biochar Output")],
-            df.iloc[df.index.str.contains("Heat Output")],
-        ),
-        axis=0,
-    ).sum(axis=0, skipna=False)
-    biochar_totoutput = df.iloc[df.index.str.contains("Biochar Output")] / df_divid
+    # Calculated biochar Carbon content from: PyPSA-Eur solid biomass and DEA pyrolysis inputs
+    # CALCULATION: Cw_biochar (tC_biochar/tbiochar) = (tC_feedstock/t_feedstock) * (tfeedstcok/GJfeedstock) * (GJ feedstock / t biochar) * (tCbiochar / tC feedstock)
+    biochar_carbon_content = biomass_carbon_content * (1 - pyrolysis_feedstock_moisture_content) / pyrolysis_feedstock_specific_energy / df.loc['yield biochar [t_biochar/MWh_biomass]',:] * C_biochar_feedstock_ratio  # tC/tbiochar
+
+    # Calculated CO2 sequestration in biochar per unit of biomass
+    # CO2seq_biomass =  (tC/tbiochar) * (tbiochar/GJbiomass) * (tbiochar>100y /tbiochar)
+    df.loc['Biomass Input [MWh_biomass/t_CO2]',:] = 1 / (biochar_carbon_content * df.loc['yield biochar [t_biochar/MWh_biomass]', :] * biochar_100years * 44 / 12)  # MWh_biomass/tCO2seq
+
+    # express all data per tonne of CO2 sequestred
+    df.loc[df.index.str.contains("Heat Output")] = df.loc[df.index.str.contains("Heat Output")].astype(float) * df.loc['Biomass Input [MWh_biomass/t_CO2]'].astype(float)
+    df.loc[df.index.str.contains("Electricity Consumption")] = df.loc[df.index.str.contains("Electricity Consumption")].astype(float) * df.loc['Biomass Input [MWh_biomass/t_CO2]'].astype(float)
+
+    df.rename(
+        index={
+               df.loc[df.index.str.contains("Heat Output")].index.values[
+                   0]: 'H-Output [MWh_th/t_CO2]',
+               df.loc[df.index.str.contains("Electricity Consumption")].index.values[
+                   0]: 'El-Input [MWh_e/t_CO2]'}, inplace=True)
+
+    # adjust cost basis from €/MWh tot_output to €/tCO2 sequestred
     idx3 = df.index.str.contains("EUR")
-    df.loc[idx3] = df.loc[idx3].values.astype(float) / biochar_totoutput.values.astype(
-        float
-    )
+    df.loc[idx3] = df.loc[idx3].values.astype(float) * df_tot_out_DEA.values.astype(float) # converto to €/MWhbiom
+    df.loc[idx3] = df.loc[idx3] * df.loc['Biomass Input [MWh_biomass/t_CO2]'].astype(float) # converto to € /t_CO2/h
     df.index = df.index.str.replace(" output from pyrolysis process", "", regex=True)
 
     # rename units
-    df.rename(
-        index={
-            df.loc[df.index.str.contains("Specific investment")].index[0]: df.loc[
-                df.index.str.contains("Specific investment")
-            ].index.str.replace("MW", "MW_biochar")[0],
-            df.loc[df.index.str.contains("Fixed O&M")].index[0]: df.loc[
-                df.index.str.contains("Fixed O&M")
-            ].index.str.replace("MW", "MW_biochar")[0],
-            df.loc[df.index.str.contains("Variable O&M")].index[0]: df.loc[
-                df.index.str.contains("Variable O&M")
-            ].index.str.replace("MWh", "MWh_biochar")[0],
-        },
-        inplace=True,
-    )
-
-    df_div = (
-        df.iloc[df.index.str.contains("Specific energy content")].astype(float) / 3.6
-    )
-    df.iloc[df.index.str.contains("Specific energy content")] = df.iloc[
-        df.index.str.contains("Biochar Output")
-    ].astype(float) / df_div.values.astype(float)
-
-    df.rename(
-        index={
-            df.loc[df.index.str.contains("Specific energy content")].index.values[
-                0
-            ]: "yield biochar [ton biochar/MWh_feedstock]",
-            df.loc[df.index.str.contains("Biochar Output")].index.values[
-                0
-            ]: "efficiency biochar [MWh_biochar/MWh_feedstock]",
-            df.loc[df.index.str.contains("Heat Output")].index.values[
-                0
-            ]: "efficiency heat [% MWh_feedstock]",
-        },
-        inplace=True,
-    )
-
+    df.rename(index={df.loc[df.index.str.contains('Specific investment')].index[0]:
+                         df.loc[df.index.str.contains("Specific investment")].index.str.replace(
+                             "MW", "t_CO2/h")[0],
+                     df.loc[df.index.str.contains('Fixed O&M')].index[0]:
+                         df.loc[df.index.str.contains("Fixed O&M")].index.str.replace(
+                             "MW", "t_CO2/h")[0],
+                     df.loc[df.index.str.contains("Variable O&M")].index[0]:
+                         df.loc[df.index.str.contains("Variable O&M")].index.str.replace(
+                             "MWh", "t_CO2")[0]}, inplace=True)
     return df
 
 
@@ -2013,8 +2053,9 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.unit == "EUR/MW input")
                 | (df.unit == "EUR/MW-methanol")
                 | (df.unit == "EUR/t_N2/h")  # air separation unit
+                | (df.unit == 'EUR/t_CO2/h')
+                | (df.unit == 'EUR/MW_biomass')
                 | (df.unit == 'EUR/MW_H2')
-                | (df.unit == "EUR/MW_biochar")
             )
         ].copy()
 
@@ -2047,7 +2088,8 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                     | (df.unit == "EUR/MWh_FT")
                     | (df.unit == "EUR/MW_MeOH/year")
                     | (df.unit == "EUR/MW_CH4/year")
-                    | (df.unit == "EUR/MW_biochar/year")
+                    | (df.unit == 'EUR/MW_biomass/year')
+                    | (df.unit == 'EUR/t_CO2/h/year')
                     | (df.unit == 'EUR/MW_H2/year')
                     | (df.unit == "% of specific investment/year")
                     | (df.unit == investment.unit.str.split(" ").iloc[0][0] + "/year")
@@ -2096,8 +2138,9 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.unit == "EUR/MWh")
                 | (df.unit == "EUR/MWhoutput")
                 | (df.unit == "EUR/MWh_CH4")
-                | (df.unit == "EUR/MWh_biochar")
                 | (df.unit == 'EUR/MWh_H2')
+                | (df.unit == 'EUR/MWh_biomass')
+                | (df.unit == 'EUR/t_CO2')
                 | (tech_name == "biogas upgrading")
             )
         ].copy()
@@ -2164,15 +2207,15 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.index.str.contains("District Heat  Output,"))
                 | (df.index.str.contains("Bio SNG"))
                 | (df.index.str.contains("biochar"))
-                | (df.index.str.contains("biomethanation"))
                 | (df.index.str.contains("H-Output"))
+                | (df.index.str.contains("Biomass Input"))
+                | (df.index.str.contains("El-Input"))
+                | (df.index.str.contains("biomethanation"))
                 | (df.index.str.contains("Hydrogen Input"))
                 | (df.index.str.contains("CO2 Input"))
                 | (df.index.str.contains("SNG Output"))
                 | (df.index.str.contains("Biogas Consumption"))
                 | (df.index.str.contains("Methane Output"))
-                | (df.index.str.contains("Biomass Input"))
-                | (df.index.str.contains("El-Input"))
                 | (df.index == ("Hydrogen"))
             )
             & (
@@ -2187,8 +2230,11 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.unit == "MWh/MWh Total Input")
                 | (df.unit == "MWh/MWh total input")
                 | df.unit.str.contains("MWh_FT/MWh_H2")
-                | df.unit.str.contains("MWh_biochar/MWh_feedstock")
-                | df.unit.str.contains("ton biochar/MWh_feedstock")
+                | df.unit.str.contains("MWh_biochar/MWh_biomass")
+                | df.unit.str.contains("t_biochar/MWh_biomass")
+                | df.unit.str.contains("MWh_th/t_CO2")
+                | df.unit.str.contains("MWh_biomass/t_CO2")
+                | df.unit.str.contains("MWh_e/t_CO2")
                 | df.unit.str.contains("MWh_CH4/MWh_H2")
                 | df.unit.str.contains("t_CO2/MWh_H2")
                 | df.unit.str.contains("MWh_e/MWh_H2")
@@ -2287,23 +2333,21 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
             clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_meoh])
 
         elif tech_name == "biochar pyrolysis":
-            efficiency_biochar = efficiency[
-                efficiency.index.str.contains("efficiency biochar")
-            ].copy()
+            efficiency_biochar = efficiency[efficiency.index.str.contains("efficiency biochar")].copy()
             efficiency_biochar["parameter"] = "efficiency-biochar"
             clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_biochar])
-            efficiency_biochar_mass = efficiency[
-                efficiency.index.str.contains("yield biochar")
-            ].copy()
+            efficiency_biochar_mass = efficiency[efficiency.index.str.contains("yield biochar")].copy()
             efficiency_biochar_mass["parameter"] = "yield-biochar"
-            clean_df[tech_name] = pd.concat(
-                [clean_df[tech_name], efficiency_biochar_mass]
-            )
-            efficiency_heat = efficiency[
-                efficiency.index.str.contains("efficiency heat")
-            ].copy()
-            efficiency_heat["parameter"] = "efficiency-heat"
-            clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_heat])
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_biochar_mass])
+            efficiency_heat_out = efficiency[efficiency.index.str.contains("H-Output")].copy()
+            efficiency_heat_out["parameter"] = "heat output"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_heat_out])
+            biomass_input = efficiency[efficiency.index.str.contains("Biomass Input")].copy()
+            biomass_input["parameter"] = "biomass input"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], biomass_input])
+            electricity_input = efficiency[efficiency.index.str.contains("El-Input")].copy()
+            electricity_input["parameter"] = "electricity input"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], electricity_input])
 
         elif tech_name == "biomethanation":
             h2_input = efficiency[efficiency.index.str.contains("Hydrogen Input")].copy()
@@ -2833,6 +2877,201 @@ def add_carbon_capture(
 
     return new_technology_dataframe
 
+def add_perennials_gbr(
+    years: list,
+    sheet_names_dict: dict,
+    new_technology_dataframe: pd.DataFrame,
+    technology_dataframe: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Add perennials + green biorefining (GBR) incl. biogas production plant.
+
+    It considers purchase of raw materials (perennials) and sales of other products
+    (protein concentrate and biogas feedstock) in the VOM.
+
+    Parameters
+    ----------
+    years : list
+        Years for which a cost assumption is provided (e.g. [2020, 2025, ...]).
+    sheet_names_dict : dict
+        Dictionary having the technology name as keys and source/sheet references as values.
+        (Used for "further description" to match repository conventions.)
+    new_technology_dataframe : pandas.DataFrame
+        DataFrame to be filled/updated with the new technology data.
+    technology_dataframe : pandas.DataFrame
+        Existing technology data cost assumptions (used to reference e.g. biogas CAPEX).
+
+    Returns
+    -------
+    pandas.DataFrame
+        Updated technology data with "perennials gbr".
+    """
+
+    tech_name = "perennials gbr"
+
+    # References (store also in "source" below)
+    source_r1 = "https://doi.org/10.1016/B978-0-323-95879-0.50147-8"
+
+    # --- Constants ---
+    LHV_ch4 = 50 / 3.6  # MWh/t_CH4
+
+    # --- Mass & energy balance assumptions (R1) ---
+    DM_perennials = 0.18  # dry matter content (t_DM / t_wet)
+    ch4_mass_fraction_in_biogas = 0.348  # mass fraction CH4 in biogas (check definition in R1)
+    flh_y = 4200  # full-load hours per year (green crops harvest May–Oct)
+
+    perennials_input_flow = 40 * DM_perennials  # t_DM/h
+    perennials_input_annual = perennials_input_flow * flh_y  # t_DM/y
+
+    protein_output_flow = 1.4  # t_DM/h (protein concentrate on DM basis)
+    protein_output_annual = protein_output_flow * flh_y  # t_DM/y
+
+    # (t_biogas / t_DM) * (mass fraction CH4) * (MWh/t_CH4)
+    biogas_output_flow = 0.29 * ch4_mass_fraction_in_biogas * LHV_ch4  # MWh/h (per t_DM/h basis)
+
+    # electricity input
+    electricity_input_flow = 7.33 / 100 * perennials_input_flow
+
+    # --- CAPEX ---
+    # Assume the downstream biogas plant can run year-round from stored feedstock:
+    capacity_ratio_biogas_gbr = flh_y / 8760  # < 1
+
+    # Reference biogas investment from existing data (unit must be consistent with your scaling below)
+    biogas_investment_2020 = technology_dataframe.loc[("biogas", "investment"), 2020]
+
+    # Additional CAPEX to scale plant from seasonal operation to year-round:
+    # (1/ratio - 1) is positive when ratio<1.
+    investment_biogas_adjusted = (
+        biogas_investment_2020
+        * (biogas_output_flow / perennials_input_flow)
+        * (1 / capacity_ratio_biogas_gbr - 1)
+    )
+
+    # Base GBR investment from R1 Table 4, divided by input capacity (tDM/h)
+    investment = 9.33e6 / (40 * DM_perennials) + investment_biogas_adjusted
+
+    # --- OPEX / VOM ---
+    protein_price = 535  # EUR/t (R1)
+    perennial_cost = 130  # EUR/tDM (R1)
+
+    # EUR/tDM (R1 Table 4: "labor and maintenance" converted to per tDM)
+    other_VOM = 0.45e6 / (40 * DM_perennials * flh_y)
+
+    # EUR/tDM: cost of perennials - revenue from protein + other variable costs
+    VOM = (
+        perennial_cost
+        - protein_price * (protein_output_annual / perennials_input_annual)
+        + other_VOM
+    )
+
+    # Own assumption
+    FOM = 0  # %/year
+
+    # --- Write to dataframe (match repo conventions) ---
+    new_technology_dataframe.loc[(tech_name, "investment"), years] = investment
+    new_technology_dataframe.loc[(tech_name, "investment"), "unit"] = "EUR/tDM/h"
+    new_technology_dataframe.loc[(tech_name, "investment"), "currency_year"] = 2020
+
+    new_technology_dataframe.loc[(tech_name, "lifetime"), years] = 25
+    new_technology_dataframe.loc[(tech_name, "lifetime"), "unit"] = "years"
+
+    new_technology_dataframe.loc[(tech_name, "FOM"), years] = FOM
+    new_technology_dataframe.loc[(tech_name, "FOM"), "unit"] = "%/year"
+    new_technology_dataframe.loc[(tech_name, "FOM"), "currency_year"] = 2020
+
+    new_technology_dataframe.loc[(tech_name, "VOM"), years] = VOM
+    new_technology_dataframe.loc[(tech_name, "VOM"), "unit"] = "EUR/tDM"
+    new_technology_dataframe.loc[(tech_name, "VOM"), "currency_year"] = 2020
+
+    # Outputs/inputs per tDM
+    new_technology_dataframe.loc[(tech_name, "biogas-output"), years] = (
+        biogas_output_flow / perennials_input_flow
+    )
+    new_technology_dataframe.loc[(tech_name, "biogas-output"), "unit"] = "MWh/tDM"
+
+    new_technology_dataframe.loc[(tech_name, "electricity-input"), years] = (
+        electricity_input_flow / perennials_input_flow
+    )
+    new_technology_dataframe.loc[(tech_name, "electricity-input"), "unit"] = "MWh/tDM"  # verify!
+
+    # Metadata (apply to whole tech row, like add_carbon_capture)
+    new_technology_dataframe.loc[tech_name, "source"] = source_r1
+    new_technology_dataframe.loc[tech_name, "further description"] = sheet_names_dict.get(
+        tech_name, ""
+    )
+
+    # Per-variable descriptions (optional but often nice)
+    new_technology_dataframe.loc[(tech_name, "investment"), "further description"] = (
+        "Includes GBR plant and scaled biogas plant without upgrading"
+    )
+    new_technology_dataframe.loc[(tech_name, "VOM"), "further description"] = (
+        "Includes purchase of perennials and revenue from protein concentrate; "
+        "incl. wages/maintenance/aux costs (R1)"
+    )
+
+    return new_technology_dataframe
+
+
+def add_biomethanation_CO2(
+    years: list,
+    sheet_names_dict: dict,
+    new_technology_dataframe: pd.DataFrame,
+    technology_dataframe: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Biomethantion from pure CO2 and H2, it is obtained from the biomethantion (biogas)
+    technology with scaling of cost for the different inlet volumen flow and recalculation of energy and mass balance for the different inlet.
+
+    Parameters
+    ----------
+    years : list
+        Years for which a cost assumption is provided (e.g. [2020, 2025, ...]).
+    sheet_names_dict : dict
+        Dictionary having the technology name as keys and source/sheet references as values.
+        (Used for "further description" to match repository conventions.)
+    new_technology_dataframe : pandas.DataFrame
+        DataFrame to be filled/updated with the new technology data.
+    technology_dataframe : pandas.DataFrame
+        Existing technology data cost assumptions (used to reference e.g. biogas CAPEX).
+
+    Returns
+    -------
+    pandas.DataFrame
+        Updated technology data with "perennials gbr".
+    """
+
+    tech_name = "biomethanation CO2"
+    base_tech_name = "biomethanation"
+
+    # Cost scaling assumptions:
+    #   - Cost proportional to reactor volume
+    #   - Residence time is the same between BG and CO2 cases
+    #   - Volumetric flow (product) is proportional to reactor volume
+    #   - T, P conditions for product (biomethane) do not vary between the two cases
+    #   - Investment cost scales by the CH4 output ratio between the two cases
+    output_ratio = (1 - technology_dataframe.loc[(base_tech_name, "Biogas Input"), years]
+                    / technology_dataframe.loc[(base_tech_name, "Methane Output"), years])
+
+    # Copy all entries from base technology unchanged (source, descriptions, units, etc.)
+    for param in technology_dataframe.loc[base_tech_name].index:
+        new_technology_dataframe.loc[(tech_name, param), :] = technology_dataframe.loc[(base_tech_name, param), :]
+
+    # Override only the two entries that differ (scaled by volumetric flow ratio)
+    new_technology_dataframe.loc[(tech_name, "Methane Output"), years] = (
+        technology_dataframe.loc[(base_tech_name, "Methane Output"), years] * output_ratio
+    )
+    new_technology_dataframe.loc[(tech_name, "investment"), years] = (
+        technology_dataframe.loc[(base_tech_name, "investment"), years] * output_ratio
+    )
+    new_technology_dataframe.loc[(tech_name, "investment"), "further description"] = (
+        "scaled from biomethanation based on volumetric flow"
+    )
+
+    # Remove "Biogas Input" as it is not applicable for the pure CO2 case
+    new_technology_dataframe.drop((tech_name, "Biogas Input"), inplace=True)
+
+    return new_technology_dataframe
+
 
 def rename_pypsa_old(cost_dataframe_pypsa: pd.DataFrame) -> pd.DataFrame:
     """
@@ -2921,6 +3160,45 @@ def add_manual_input(technology_dataframe: pd.DataFrame) -> pd.DataFrame:
     technology_dataframe = new_df.combine_first(technology_dataframe)
 
     return technology_dataframe
+
+def add_manual_input_extra(data, exclusions=None):
+    # function that adds manual inputs for industrial components
+    df = pd.read_csv(snakemake.input['manual_input_extra'], quotechar='"', sep=',', keep_default_na=False)
+    df = df.rename(columns={"further_description": "further description"})
+
+    # --- exact-match exclusion (case-sensitive) ---
+    if exclusions:
+        df = df[~df['technology'].isin(exclusions)].copy()
+    # ---------------------------------------------------
+
+    l = []
+    for tech in df['technology'].unique():
+        c0 = df[df['technology'] == tech]
+        for param in c0['parameter'].unique():
+
+            c = df.query('technology == @tech and parameter == @param')
+
+            s = pd.Series(index=snakemake.config['years'],
+                          data=np.interp(snakemake.config['years'], c['year'], c['value']),
+                          name=param)
+            s['parameter'] = param
+            s['technology'] = tech
+            try:
+                s["currency_year"] = int(c["currency_year"].values[0])
+            except ValueError:
+                s["currency_year"] = np.nan
+            for col in ['unit', 'source', 'further description']:
+                s[col] = "; and\n".join(c[col].unique().astype(str))
+            s = s.rename({
+                             "further_description": "further description"})  # match column name between manual_input and original TD workflow
+            l.append(s)
+
+    new_df = pd.DataFrame(l).set_index(['technology', 'parameter'])
+    data.index.set_names(["technology", "parameter"], inplace=True)
+    # overwrite DEA data with manual input
+    data = new_df.combine_first(data)
+
+    return data
 
 
 def rename_ISE(cost_dataframe_ise: pd.DataFrame) -> pd.DataFrame:
@@ -4213,6 +4491,10 @@ if __name__ == "__main__":
     data = convert_units(years_list, data)
     # add carbon capture
     data = add_carbon_capture(years_list, dea_sheet_names, data, tech_data)
+    # add perennials and green biorefining
+    data = add_perennials_gbr(years_list, dea_sheet_names, data, data)
+    # add biomethanation from pure CO2
+    data = add_biomethanation_CO2(years_list, dea_sheet_names, data, data)
 
     # adjust for inflation
     for x in data.index.get_level_values("technology"):
@@ -4264,8 +4546,9 @@ if __name__ == "__main__":
     # add costs for gas pipelines
     data = pd.concat([data, costs_ISE.loc[["Gasnetz"]]], sort=True)
 
+    # add manual inputs
     data = add_manual_input(data)
-    # add costs for home batteries
+    data = add_manual_input_extra(data)
 
     if snakemake.config["energy_storage_database"].get("ewg_home_battery", True):
         data = add_home_battery_costs(snakemake.input.EWG_costs, years_list, data)
