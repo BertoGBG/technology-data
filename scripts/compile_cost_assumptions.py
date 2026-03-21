@@ -1596,13 +1596,13 @@ def order_data(tech_data):
             efficiency_biochar_mass["parameter"] = "yield-biochar"
             clean_df[tech] = pd.concat([clean_df[tech], efficiency_biochar_mass])
             efficiency_heat_out = efficiency[efficiency.index.str.contains("H-Output")].copy()
-            efficiency_heat_out["parameter"] = "heat output"
+            efficiency_heat_out["parameter"] = "heat-output"
             clean_df[tech] = pd.concat([clean_df[tech], efficiency_heat_out])
             biomass_input = efficiency[efficiency.index.str.contains("Biomass Input")].copy()
-            biomass_input["parameter"] = "biomass input"
+            biomass_input["parameter"] = "biomass-input"
             clean_df[tech] = pd.concat([clean_df[tech], biomass_input])
             electricity_input = efficiency[efficiency.index.str.contains("El-Input")].copy()
-            electricity_input["parameter"] = "electricity input"
+            electricity_input["parameter"] = "electricity-input"
             clean_df[tech] = pd.concat([clean_df[tech], electricity_input])
 
         elif len(efficiency) != 1:
