@@ -3490,6 +3490,7 @@ def carbon_flow(
         "BioSNG",
         "biogas",
         "biogas CC",
+        "biogas plus hydrogen",
         "digestible biomass to hydrogen",
         "solid biomass to hydrogen",
         "electrobiofuels",
@@ -3534,12 +3535,22 @@ def carbon_flow(
             # differences in resource use etc. which may tweak results in favour of one tech or another
             eta = 1.6
             H2_in = 0.46
+            el_input = 0.01
+            biogas_input = 1 - H2_in - el_input
+            heat_out = 0.11
 
-            heat_out = 0.19
             source = "Calculated from data in Danish Energy Agency, data_sheets_for_renewable_fuels.xlsx"
             cost_dataframe.loc[(tech_name, "hydrogen input"), "value"] = H2_in
             cost_dataframe.loc[(tech_name, "hydrogen input"), "unit"] = "MWh_H2/MWh_CH4"
             cost_dataframe.loc[(tech_name, "hydrogen input"), "source"] = source
+
+            cost_dataframe.loc[(tech_name, "electricity input"), "value"] = el_input
+            cost_dataframe.loc[(tech_name, "electricity input"), "unit"] = "MWh_el/MWh_CH4"
+            cost_dataframe.loc[(tech_name, "electricity input"), "source"] = source
+
+            cost_dataframe.loc[(tech_name, "biogas input"), "value"] = biogas_input
+            cost_dataframe.loc[(tech_name, "biogas input"), "unit"] = "MWh_H2/MWh_CH4"
+            cost_dataframe.loc[(tech_name, "biogas input"), "source"] = source
 
             cost_dataframe.loc[(tech_name, "heat output"), "value"] = heat_out
             cost_dataframe.loc[(tech_name, "heat output"), "unit"] = "MWh_th/MWh_CH4"
