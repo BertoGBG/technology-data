@@ -153,7 +153,6 @@ dea_sheet_names = {
     "electrolysis small": "86 AEC 10 MW",
     "gas storage": "150 Underground Storage of Gas",
     "biomethanation": "106 Biomethanation of biogas",
-
 }
 # [DEA-sheet-names]
 
@@ -1118,6 +1117,7 @@ def add_desalination_data(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
 
     return cost_dataframe
 
+
 def biomass_properties():
     """
     Function that harmonises the properties of solid biomass properties with biomass potentials (JRC ENSPRESO)
@@ -1366,6 +1366,7 @@ def unify_diw(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
     cost_dataframe.loc[("hydro", "investment"), "currency_year"] = 2010
 
     return cost_dataframe
+
 
 def biomethanation_dea(df):
     """
@@ -2166,9 +2167,9 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.unit == "EUR/MW input")
                 | (df.unit == "EUR/MW-methanol")
                 | (df.unit == "EUR/t_N2/h")  # air separation unit
-                | (df.unit == 'EUR/t_CO2/h')
-                | (df.unit == 'EUR/MW_biomass')
-                | (df.unit == 'EUR/MW_H2')
+                | (df.unit == "EUR/t_CO2/h")
+                | (df.unit == "EUR/MW_biomass")
+                | (df.unit == "EUR/MW_H2")
             )
         ].copy()
 
@@ -2201,9 +2202,9 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                     | (df.unit == "EUR/MWh_FT")
                     | (df.unit == "EUR/MW_MeOH/year")
                     | (df.unit == "EUR/MW_CH4/year")
-                    | (df.unit == 'EUR/MW_biomass/year')
-                    | (df.unit == 'EUR/t_CO2/h/year')
-                    | (df.unit == 'EUR/MW_H2/year')
+                    | (df.unit == "EUR/MW_biomass/year")
+                    | (df.unit == "EUR/t_CO2/h/year")
+                    | (df.unit == "EUR/MW_H2/year")
                     | (df.unit == "% of specific investment/year")
                     | (df.unit == investment.unit.str.split(" ").iloc[0][0] + "/year")
                 )
@@ -2251,9 +2252,9 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.unit == "EUR/MWh")
                 | (df.unit == "EUR/MWhoutput")
                 | (df.unit == "EUR/MWh_CH4")
-                | (df.unit == 'EUR/MWh_H2')
-                | (df.unit == 'EUR/MWh_biomass')
-                | (df.unit == 'EUR/t_CO2')
+                | (df.unit == "EUR/MWh_H2")
+                | (df.unit == "EUR/MWh_biomass")
+                | (df.unit == "EUR/t_CO2")
                 | (tech_name == "biogas upgrading")
             )
         ].copy()
@@ -2446,10 +2447,14 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
             clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_meoh])
 
         elif tech_name == "biochar pyrolysis":
-            efficiency_biochar = efficiency[efficiency.index.str.contains("efficiency biochar")].copy()
+            efficiency_biochar = efficiency[
+                efficiency.index.str.contains("efficiency biochar")
+            ].copy()
             efficiency_biochar["parameter"] = "efficiency-biochar"
             clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_biochar])
-            efficiency_biochar_mass = efficiency[efficiency.index.str.contains("yield biochar")].copy()
+            efficiency_biochar_mass = efficiency[
+                efficiency.index.str.contains("yield biochar")
+            ].copy()
             efficiency_biochar_mass["parameter"] = "yield-biochar"
             clean_df[tech_name] = pd.concat(
                 [clean_df[tech_name], efficiency_biochar_mass]
@@ -3008,6 +3013,7 @@ def add_carbon_capture(
 
     return new_technology_dataframe
 
+
 def add_perennials_gbr(
     years: list,
     sheet_names_dict: dict,
@@ -3048,7 +3054,9 @@ def add_perennials_gbr(
 
     # --- Mass & energy balance assumptions (R1) ---
     DM_perennials = 0.18  # dry matter content (t_DM / t_wet)
-    ch4_mass_fraction_in_biogas = 0.348  # mass fraction CH4 in biogas (check definition in R1)
+    ch4_mass_fraction_in_biogas = (
+        0.348  # mass fraction CH4 in biogas (check definition in R1)
+    )
     flh_y = 4200  # full-load hours per year (green crops harvest May–Oct)
 
     perennials_input_flow = 40 * DM_perennials  # t_DM/h
@@ -3058,7 +3066,9 @@ def add_perennials_gbr(
     protein_output_annual = protein_output_flow * flh_y  # t_DM/y
 
     # (t_biogas / t_DM) * (mass fraction CH4) * (MWh/t_CH4)
-    biogas_output_flow = 0.29 * ch4_mass_fraction_in_biogas * LHV_ch4  # MWh/h (per t_DM/h basis)
+    biogas_output_flow = (
+        0.29 * ch4_mass_fraction_in_biogas * LHV_ch4
+    )  # MWh/h (per t_DM/h basis)
 
     # electricity input
     electricity_input_flow = 7.33 / 100 * perennials_input_flow
@@ -3123,12 +3133,14 @@ def add_perennials_gbr(
     new_technology_dataframe.loc[(tech_name, "electricity-input"), years] = (
         electricity_input_flow / perennials_input_flow
     )
-    new_technology_dataframe.loc[(tech_name, "electricity-input"), "unit"] = "MWh/tDM"  # verify!
+    new_technology_dataframe.loc[(tech_name, "electricity-input"), "unit"] = (
+        "MWh/tDM"  # verify!
+    )
 
     # Metadata (apply to whole tech row, like add_carbon_capture)
     new_technology_dataframe.loc[tech_name, "source"] = source_r1
-    new_technology_dataframe.loc[tech_name, "further description"] = sheet_names_dict.get(
-        tech_name, ""
+    new_technology_dataframe.loc[tech_name, "further description"] = (
+        sheet_names_dict.get(tech_name, "")
     )
 
     # Per-variable descriptions (optional but often nice)
@@ -3180,16 +3192,22 @@ def add_biomethanation_CO2(
     #   - Volumetric flow (product) is proportional to reactor volume
     #   - T, P conditions for product (biomethane) do not vary between the two cases
     #   - Investment cost scales by the CH4 output ratio between the two cases
-    output_ratio = (1 - technology_dataframe.loc[(base_tech_name, "biogas-input"), years]
-                    / technology_dataframe.loc[(base_tech_name, "methane-output"), years])
+    output_ratio = (
+        1
+        - technology_dataframe.loc[(base_tech_name, "biogas-input"), years]
+        / technology_dataframe.loc[(base_tech_name, "methane-output"), years]
+    )
 
     # Copy all entries from base technology unchanged (source, descriptions, units, etc.)
     for param in technology_dataframe.loc[base_tech_name].index:
-        new_technology_dataframe.loc[(tech_name, param), :] = technology_dataframe.loc[(base_tech_name, param), :]
+        new_technology_dataframe.loc[(tech_name, param), :] = technology_dataframe.loc[
+            (base_tech_name, param), :
+        ]
 
     # Override only the two entries that differ (scaled by volumetric flow ratio)
     new_technology_dataframe.loc[(tech_name, "methane-output"), years] = (
-        technology_dataframe.loc[(base_tech_name, "methane-output"), years] * output_ratio
+        technology_dataframe.loc[(base_tech_name, "methane-output"), years]
+        * output_ratio
     )
     new_technology_dataframe.loc[(tech_name, "investment"), years] = (
         technology_dataframe.loc[(base_tech_name, "investment"), years] * output_ratio
@@ -3292,39 +3310,47 @@ def add_manual_input(technology_dataframe: pd.DataFrame) -> pd.DataFrame:
 
     return technology_dataframe
 
+
 def add_manual_input_extra(data, exclusions=None):
     # function that adds manual inputs for industrial components
-    df = pd.read_csv(snakemake.input['manual_input_extra'], quotechar='"', sep=',', keep_default_na=False)
+    df = pd.read_csv(
+        snakemake.input["manual_input_extra"],
+        quotechar='"',
+        sep=",",
+        keep_default_na=False,
+    )
     df = df.rename(columns={"further_description": "further description"})
 
     # --- exact-match exclusion (case-sensitive) ---
     if exclusions:
-        df = df[~df['technology'].isin(exclusions)].copy()
+        df = df[~df["technology"].isin(exclusions)].copy()
     # ---------------------------------------------------
 
     l = []
-    for tech in df['technology'].unique():
-        c0 = df[df['technology'] == tech]
-        for param in c0['parameter'].unique():
+    for tech in df["technology"].unique():
+        c0 = df[df["technology"] == tech]
+        for param in c0["parameter"].unique():
+            c = df.query("technology == @tech and parameter == @param")
 
-            c = df.query('technology == @tech and parameter == @param')
-
-            s = pd.Series(index=snakemake.config['years'],
-                          data=np.interp(snakemake.config['years'], c['year'], c['value']),
-                          name=param)
-            s['parameter'] = param
-            s['technology'] = tech
+            s = pd.Series(
+                index=snakemake.config["years"],
+                data=np.interp(snakemake.config["years"], c["year"], c["value"]),
+                name=param,
+            )
+            s["parameter"] = param
+            s["technology"] = tech
             try:
                 s["currency_year"] = int(c["currency_year"].values[0])
             except ValueError:
                 s["currency_year"] = np.nan
-            for col in ['unit', 'source', 'further description']:
+            for col in ["unit", "source", "further description"]:
                 s[col] = "; and\n".join(c[col].unique().astype(str))
-            s = s.rename({
-                             "further_description": "further description"})  # match column name between manual_input and original TD workflow
+            s = s.rename(
+                {"further_description": "further description"}
+            )  # match column name between manual_input and original TD workflow
             l.append(s)
 
-    new_df = pd.DataFrame(l).set_index(['technology', 'parameter'])
+    new_df = pd.DataFrame(l).set_index(["technology", "parameter"])
     data.index.set_names(["technology", "parameter"], inplace=True)
     # overwrite DEA data with manual input
     data = new_df.combine_first(data)
@@ -3545,7 +3571,9 @@ def carbon_flow(
             cost_dataframe.loc[(tech_name, "hydrogen input"), "source"] = source
 
             cost_dataframe.loc[(tech_name, "electricity input"), "value"] = el_input
-            cost_dataframe.loc[(tech_name, "electricity input"), "unit"] = "MWh_el/MWh_CH4"
+            cost_dataframe.loc[(tech_name, "electricity input"), "unit"] = (
+                "MWh_el/MWh_CH4"
+            )
             cost_dataframe.loc[(tech_name, "electricity input"), "source"] = source
 
             cost_dataframe.loc[(tech_name, "biogas input"), "value"] = biogas_input

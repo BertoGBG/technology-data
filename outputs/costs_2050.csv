@@ -688,6 +688,12 @@ biogas CC,capture rate,0.9,per unit,Assumption based on doi:10.1016/j.biombioe.2
 biogas CC,efficiency,1.0,per unit,Assuming input biomass is already given in biogas output,,
 biogas CC,investment,1090.5532,EUR/kW,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","81 Biogas, Basic plant, small:  Specific investment",2020.0
 biogas CC,lifetime,20.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","81 Biogas, Basic plant, small:  Technical lifetime",2020.0
+biogas engine,FOM,1.0,%/year,DEA technology catalogue version 16: https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating,Fixed operation and maintenance cost. Calculated from FOM EUR/MW_e/y and VOM,2020.0
+biogas engine,VOM,8.022,EUR/MW_e,DEA technology catalogue version 16: https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating,Variable operation and maintenance cost; and Variable operation and maintanance cost,2020.0
+biogas engine,c_b,1.0,50C/100C,DEA technology catalogue version 16: https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating,Backpressure coefficient,2020.0
+biogas engine,efficiency,0.45,%,DEA technology catalogue version 16: https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating,"Electrical efficiency (net, annual average)",2020.0
+biogas engine,investment,1136463.015,EUR/MW_e,DEA technology catalogue version 16: https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating,Nominal total investment cost,2020.0
+biogas engine,lifetime,25.0,years,DEA technology catalogue version 16: https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating,Technical lifetime,2020.0
 biogas manure,fuel,25.333,EUR/MWhth,"JRC ENSPRESO ca avg for MINBIOGAS1 (manure), ENS_BaU_GFTM",,2010.0
 biogas plus hydrogen,CO2 stored,0.0241,tCO2/MWh_th,"Stoichiometric calculation, doi:10.1016/j.apenergy.2022.120016",,
 biogas plus hydrogen,FOM,4.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",99 SNG from methan. of biogas:  Fixed O&M,2020.0
