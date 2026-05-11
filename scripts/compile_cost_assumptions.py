@@ -152,7 +152,8 @@ dea_sheet_names = {
     "biochar pyrolysis": "105 Slow pyrolysis, Straw",
     "electrolysis small": "86 AEC 10 MW",
     "gas storage": "150 Underground Storage of Gas",
-    "biomethanation": "106 Biomethanation of biogas",
+    "biomethanation CO2": "106 Biomethanation of biogas",
+    "biomethanation biogas": "106 Biomethanation of biogas",
 }
 # [DEA-sheet-names]
 
@@ -223,7 +224,8 @@ uncrtnty_lookup = {
     "waste CHP": "I:J",
     "waste CHP CC": "I:J",
     "biochar pyrolysis": "J:K",
-    "biomethanation": "J:K",
+    "biomethanation CO2": "J:K",
+    "biomethanation biogas": "J:K",
     "electrolysis small": "I:J",
     "gas storage": "",
 }
@@ -251,7 +253,8 @@ cost_year_2020 = [
     "methanolisation",
     "Fischer-Tropsch",
     "biochar pyrolysis",
-    "biomethanation",
+    "biomethanation CO2",
+    "biomethanation biogas",
     "electrolysis small",
     "central water pit storage",
     "central water tank storage",
@@ -977,8 +980,10 @@ def get_data_DEA(
     if "biochar pyrolysis" in tech_name:
         df = biochar_pyrolysis_dea(df)
 
-    if "biomethanation" in tech_name:
-        df = biomethanation_dea(df)
+    if tech_name == "biomethanation CO2":
+        df = biomethanation_CO2_dea(df)
+    elif tech_name == "biomethanation biogas":
+        df = biomethanation_biogas_dea(df)
 
     elif tech_name == "central geothermal heat source":
         # we need to convert from costs per MW of the entire system (including heat pump)
@@ -1367,19 +1372,112 @@ def unify_diw(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
 
     return cost_dataframe
 
-
-def biomethanation_dea(df):
+def biomethanation_biogas_dea(df):
     """
     This function does:
     - import DEA data for biomethanation (4H2 + CO2 -> CH4 + 2H2O)
     - recalculates cost and inputs per MW of H2 added (bus 0 is H2)
+    - Note that the DEA sheet name is biomethantion of biogas but the balances are for a CO2+H2 input excluding the biogas
     """
 
     CO2_density = 1.98 / 1000  # kg/Nm3
+    CH4_density = 0.717 / 1000 # kg/Nm3
+    H2_density = 0.0899 / 1000 # kg/Nm3
     CH4_vol = 0.58  # biogas vol%, from DEA source for biomethanation
     CO2_vol = 0.42  # biogas vol%, from DEA source for biomethanation
     CH4_lhv = 35.8 / 3600  # MWh/Nm3
-    CO2_biogas = CO2_vol / CH4_vol / CH4_lhv * CO2_density  # t_CO2/MWh_biogas
+    H2_lhv = 10.8 / 3600 # MWh/Nm3
+
+    # Find index labels directly
+    idx = df.index[df.index.str.contains("Total Input")]
+    idx2 = df.index[df.index.str.contains("Hydrogen Consumption")]
+    idx3 = df.index[df.index.str.contains("CO2 Consumption")]
+    idx4 = df.index[df.index.str.contains("Methane Output")]
+    idx5 = df.index[df.index.str.contains("EUR")]
+
+    # H2/CH4 output ratio (MW/MW)
+    CH4_H2_ratio = df.loc[idx4].astype(float) / df.loc[idx2[0]].astype(float)
+
+    # Adjust costs from €/MWh CH4 to €/MW_H2
+    df.loc[idx5] = df.loc[idx5].astype(float).mul(CH4_H2_ratio.values.flatten(), axis=1)
+    df.index = [
+        i.replace("MW", "MW_H2").replace("MWh", "MWh_H2") if i in idx5 else i
+        for i in df.index
+    ]
+
+    # recompute idx5 after the index rename above
+    idx5 = df.index[df.index.str.contains("EUR")]
+
+    # Normalize all inputs & outputs to MW of hydrogen
+    df.loc[idx] = df.loc[idx].astype(float) / df.loc[idx2[0]].astype(float)
+
+    # assign Biogas energy input  MWh/MWh_H2
+    df.loc["Biogas Consumption, [MWh_th/MWh_H2]"] = (
+        df.loc[idx3[0]].astype(float) * (CH4_vol / CO2_vol) * CH4_lhv
+    )
+
+    # update investment based on input volume flow
+    CO2_H2_input = df.loc[idx3[0]].astype(float) + 1/H2_lhv
+    CO2_H2_CH4_input = df.loc[idx3[0]].astype(float) * (CH4_vol / CO2_vol) + CO2_H2_input
+    df.loc[idx5] = df.loc[idx5].astype(float) * CO2_H2_CH4_input / CO2_H2_input
+
+    # Convert CO2 input from Nm3 to tons
+    df.loc[idx3[0]] = df.loc[idx3[0]].astype(float) * CO2_density  # tCO2 / h / MW_H2
+
+    # Add biogas back to methane output (correct total output)
+    df.loc[idx4] = (
+        df.loc[idx4].astype(float) + df.loc["Biogas Consumption, [MWh_th/MWh_H2]"]
+    )
+
+    # change unit to H2 basis
+    df.index = df.index.str.replace(" Total Input", "_H2")
+
+    # Rename indices and update units
+    replacements = {
+        "Hydrogen Consumption": "Hydrogen Input",
+        "CO2 Consumption": "CO2 Input",
+        "Electricity Consumption": "El-Input",
+        "Methane Output": "Methane Output",
+        "Heat Output": "H-Output",
+    }
+
+    old_units = {
+        "Hydrogen Consumption": "MWh/",
+        "CO2 Consumption": "Nm3",
+        "Electricity Consumption": "MWh/",
+        "Methane Output": "MWh/",
+        "Heat Output": "MWh/",
+    }
+
+    new_units = {
+        "Hydrogen Consumption": "MWh_H2/",
+        "CO2 Consumption": "t_CO2",
+        "Electricity Consumption": "MWh_e/",
+        "Methane Output": "MWh_CH4/",
+        "Heat Output": "MWh_th/",
+    }
+
+    for old_label, new_label in replacements.items():
+        matches = df.index[df.index.str.contains(old_label)]
+        if not matches.empty:
+            old_index = matches[0]
+            updated_index = old_index.replace(old_label, new_label)
+            updated_index = updated_index.replace(
+                old_units[old_label], new_units[old_label]
+            )
+            df.rename(index={old_index: updated_index}, inplace=True)
+
+    return df
+
+def biomethanation_CO2_dea(df):
+    """
+    This function does:
+    - import DEA data for biomethanation (4H2 + CO2 -> CH4 + 2H2O)
+    - recalculates cost and inputs per MW of H2 added (bus 0 is H2)
+    - Note that the DEA sheet name is biomethantion of biogas but the balances are for a CO2+H2 input excluding the biogas
+    """
+
+    CO2_density = 1.964 / 1000  # kg/Nm3 normal density CO2
 
     # Find index labels directly
     idx = df.index[df.index.str.contains("Total Input")]
@@ -1403,16 +1501,6 @@ def biomethanation_dea(df):
 
     # Convert CO2 input from Nm3 to tons
     df.loc[idx3[0]] = df.loc[idx3[0]].astype(float) * CO2_density  # tCO2 / h / MW_H2
-
-    # Biogas input in MWh/MWh_H2
-    df.loc["Biogas Consumption, [MWh_th/MWh_H2]"] = (
-        df.loc[idx3[0]].astype(float) / CO2_biogas
-    )
-
-    # Add biogas back to methane output (correct total output)
-    df.loc[idx4] = (
-        df.loc[idx4].astype(float) + df.loc["Biogas Consumption, [MWh_th/MWh_H2]"]
-    )
 
     # change unit to H2 basis
     df.index = df.index.str.replace(" Total Input", "_H2")
@@ -2324,7 +2412,8 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.index.str.contains("H-Output"))
                 | (df.index.str.contains("Biomass Input"))
                 | (df.index.str.contains("El-Input"))
-                | (df.index.str.contains("biomethanation"))
+                | (df.index.str.contains("biomethanation CO2"))
+                | (df.index.str.contains("biomethanation biogas"))
                 | (df.index.str.contains("Hydrogen Input"))
                 | (df.index.str.contains("CO2 Input"))
                 | (df.index.str.contains("SNG Output"))
@@ -2475,7 +2564,7 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
             electricity_input["parameter"] = "electricity-input"
             clean_df[tech_name] = pd.concat([clean_df[tech_name], electricity_input])
 
-        elif tech_name == "biomethanation":
+        elif tech_name == "biomethanation CO2":
             h2_input = efficiency[
                 efficiency.index.str.contains("Hydrogen Input")
             ].copy()
@@ -2494,6 +2583,32 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
             ].copy()
             biomass_input["parameter"] = "methane-output"
             clean_df[tech_name] = pd.concat([clean_df[tech_name], biomass_input])
+            electricity_input = efficiency[
+                efficiency.index.str.contains("El-Input")
+            ].copy()
+            electricity_input["parameter"] = "electricity-input"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], electricity_input])
+
+
+        elif tech_name == "biomethanation biogas":
+            h2_input = efficiency[
+                efficiency.index.str.contains("Hydrogen Input")
+            ].copy()
+            h2_input["parameter"] = "hydrogen-input"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], h2_input])
+            co2_input = efficiency[efficiency.index.str.contains("CO2 Input")].copy()
+            co2_input["parameter"] = "CO2-input"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], co2_input])
+            efficiency_heat_out = efficiency[
+                efficiency.index.str.contains("H-Output")
+            ].copy()
+            efficiency_heat_out["parameter"] = "heat-output"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_heat_out])
+            methane_output = efficiency[
+                efficiency.index.str.contains("Methane Output")
+            ].copy()
+            methane_output["parameter"] = "methane-output"
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], methane_output])
             electricity_input = efficiency[
                 efficiency.index.str.contains("El-Input")
             ].copy()
@@ -3151,73 +3266,6 @@ def add_perennials_gbr(
         "Includes purchase of perennials and revenue from protein concentrate; "
         "incl. wages/maintenance/aux costs (R1)"
     )
-
-    return new_technology_dataframe
-
-
-def add_biomethanation_CO2(
-    years: list,
-    sheet_names_dict: dict,
-    new_technology_dataframe: pd.DataFrame,
-    technology_dataframe: pd.DataFrame,
-) -> pd.DataFrame:
-    """
-    Biomethanation from pure CO2 and H2, it is obtained from the biomethanation (biogas)
-    technology with scaling of cost for the different inlet volumen flow and recalculation of energy and mass balance for the different inlet.
-
-    Parameters
-    ----------
-    years : list
-        Years for which a cost assumption is provided (e.g. [2020, 2025, ...]).
-    sheet_names_dict : dict
-        Dictionary having the technology name as keys and source/sheet references as values.
-        (Used for "further description" to match repository conventions.)
-    new_technology_dataframe : pandas.DataFrame
-        DataFrame to be filled/updated with the new technology data.
-    technology_dataframe : pandas.DataFrame
-        Existing technology data cost assumptions (used to reference e.g. biogas CAPEX).
-
-    Returns
-    -------
-    pandas.DataFrame
-        Updated technology data with "perennials gbr".
-    """
-
-    tech_name = "biomethanation CO2"
-    base_tech_name = "biomethanation"
-
-    # Cost scaling assumptions:
-    #   - Cost proportional to reactor volume
-    #   - Residence time is the same between BG and CO2 cases
-    #   - Volumetric flow (product) is proportional to reactor volume
-    #   - T, P conditions for product (biomethane) do not vary between the two cases
-    #   - Investment cost scales by the CH4 output ratio between the two cases
-    output_ratio = (
-        1
-        - technology_dataframe.loc[(base_tech_name, "biogas-input"), years]
-        / technology_dataframe.loc[(base_tech_name, "methane-output"), years]
-    )
-
-    # Copy all entries from base technology unchanged (source, descriptions, units, etc.)
-    for param in technology_dataframe.loc[base_tech_name].index:
-        new_technology_dataframe.loc[(tech_name, param), :] = technology_dataframe.loc[
-            (base_tech_name, param), :
-        ]
-
-    # Override only the two entries that differ (scaled by volumetric flow ratio)
-    new_technology_dataframe.loc[(tech_name, "methane-output"), years] = (
-        technology_dataframe.loc[(base_tech_name, "methane-output"), years]
-        * output_ratio
-    )
-    new_technology_dataframe.loc[(tech_name, "investment"), years] = (
-        technology_dataframe.loc[(base_tech_name, "investment"), years] * output_ratio
-    )
-    new_technology_dataframe.loc[(tech_name, "investment"), "further description"] = (
-        "scaled from biomethanation based on volumetric flow"
-    )
-
-    # Remove "Biogas Input" as it is not applicable for the pure CO2 case
-    new_technology_dataframe.drop((tech_name, "biogas-input"), inplace=True)
 
     return new_technology_dataframe
 
@@ -4663,8 +4711,6 @@ if __name__ == "__main__":
     data = add_carbon_capture(years_list, dea_sheet_names, data, tech_data)
     # add perennials and green biorefining
     data = add_perennials_gbr(years_list, dea_sheet_names, data, data)
-    # add biomethanation from pure CO2
-    data = add_biomethanation_CO2(years_list, dea_sheet_names, data, data)
 
     # adjust for inflation
     for x in data.index.get_level_values("technology"):
