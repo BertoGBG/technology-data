@@ -47,3 +47,4 @@ CO2 liquefaction small,electricity-input,2025,0.185,MWh_el/t_CO2,-,DEA technolog
 NG grid connection,investment,2025,1450,EUR/MW,2025,"https://evida.dk/tarifblad010125/","EVIDA.DK"
 NG grid connection,FOM,2020,0.2,%/year,2025,"https://evida.dk/tarifblad010125/","EVIDA.DK"
 NG grid connection,lifetime,2020,40,years,2025,"Own assumption",""
+methanolisation,heat-input,2025,0.104693141,MWh_th/MWh_MeOH,-,DEA technology data for Renewable fuels,""
