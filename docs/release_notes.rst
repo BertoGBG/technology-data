@@ -1,7 +1,6 @@
 
 ..
   SPDX-FileCopyrightText: Contributors to technology-data <https://github.com/pypsa/technology-data>
-
   SPDX-License-Identifier: GPL-3.0-only
 
 ##########################################
@@ -16,7 +15,26 @@ Upcoming Release
 ..   The features listed below are not released yet, but will be part of the next release! 
 ..   To use the features already you have to use the ``master`` branch.
 
-* Updated Biochar pyrolysis: units updated with rebase on CO2 sequestered, biomass properties aligned with other biomass technolgies, 0.7 coefficient applied to calculate final CO2 sequestration beyond 100 years.
+* Updated Biochar pyrolysis: units updated with rebase on CO2 sequestered, biomass properties aligned with other biomass technolgies, 0.7 coefficient applied to calculate final CO2 sequestration beyond 100 years. (https://github.com/PyPSA/technology-data/pull/258)
+
+`v0.15.0 <https://github.com/PyPSA/technology-data/releases/tag/v0.15.0>`__ (9th June 2026)
+================================================================================================
+
+**Breaking changes**
+
+* Renamed ``electricity grid connection`` to ``distribution grid reinforcement`` and updated description for more clarity on the technology and consistency with the source.
+
+**Changes**
+
+* Added "Post-combustion carbon capture retrofit - 500 MW(th) biomass-fired boiler" as ``biomass boiler capture`` (https://github.com/PyPSA/technology-data/pull/253).
+
+* Added VOM for carbon capture retrofits: ``biomass CHP capture`` and ``cement capture`` (https://github.com/PyPSA/technology-data/pull/253).
+
+* Added technology data for ``CO2 dense phase compression`` step for transport in large pipelines which is different from the current ``CO2 liquefaction`` technology parameters that is taken for ship transport  (https://github.com/PyPSA/technology-data/pull/273).
+
+* Added missing discount rate for OCGT in US-specific data. (https://github.com/PyPSA/technology-data/pull/269)
+
+* The ``currency_year`` column will now reflect the inflation adjusted currency year instead of the original currency year of the input data. (https://github.com/PyPSA/technology-data/pull/275)
 
 `v0.14.0 <https://github.com/PyPSA/technology-data/releases/tag/v0.14.0>`__ (13th February 2026)
 ================================================================================================
