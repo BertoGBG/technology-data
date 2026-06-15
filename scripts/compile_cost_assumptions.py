@@ -2917,16 +2917,22 @@ def add_biomethanation_CO2(
     #   - Volumetric flow (product) is proportional to reactor volume
     #   - T, P conditions for product (biomethane) do not vary between the two cases
     #   - Investment cost scales by the CH4 output ratio between the two cases
-    output_ratio = (1 - technology_dataframe.loc[(base_tech_name, "biogas-input"), years]
-                    / technology_dataframe.loc[(base_tech_name, "methane-output"), years])
+    output_ratio = (
+        1
+        - technology_dataframe.loc[(base_tech_name, "biogas-input"), years]
+        / technology_dataframe.loc[(base_tech_name, "methane-output"), years]
+    )
 
     # Copy all entries from base technology unchanged (source, descriptions, units, etc.)
     for param in technology_dataframe.loc[base_tech_name].index:
-        new_technology_dataframe.loc[(tech_name, param), :] = technology_dataframe.loc[(base_tech_name, param), :]
+        new_technology_dataframe.loc[(tech_name, param), :] = technology_dataframe.loc[
+            (base_tech_name, param), :
+        ]
 
     # Override only the two entries that differ (scaled by volumetric flow ratio)
     new_technology_dataframe.loc[(tech_name, "methane-output"), years] = (
-        technology_dataframe.loc[(base_tech_name, "methane-output"), years] * output_ratio
+        technology_dataframe.loc[(base_tech_name, "methane-output"), years]
+        * output_ratio
     )
     new_technology_dataframe.loc[(tech_name, "investment"), years] = (
         technology_dataframe.loc[(base_tech_name, "investment"), years] * output_ratio
