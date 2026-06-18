@@ -17,6 +17,8 @@ Upcoming Release
 
 * Added biomethanation technologies (biological methanation of biogas/H2 as an alternative to the Sabatier reaction). (https://github.com/PyPSA/technology-data/pull/257)
 
+* Adding `Enhanced Weathering` (or Rocks) as CDR technology. (https://github.com/PyPSA/technology-data/pull/256)
+
 `v0.15.0 <https://github.com/PyPSA/technology-data/releases/tag/v0.15.0>`__ (9th June 2026)
 ================================================================================================
 
