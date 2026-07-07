@@ -277,6 +277,7 @@ manual_cost_year_assignments_2020 = [
     "gas storage charger",
     "gas storage discharger",
     "gas storage discharger",
+    "perennials gbr",
 ]
 
 cost_year_2019 = [

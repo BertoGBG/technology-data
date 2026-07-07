@@ -4621,12 +4621,12 @@ pelletization,FOM,3.0,%/year,Own assumption: find better,,2025.0,,
 pelletization,electricity-input,0.1,MW_e/MW_pellets,Own assumption: find better,,2025.0,,
 pelletization,investment,0.0,EUR/MW_pellets,Own assumption: find better,,2020.0,,
 pelletization,lifetime,15.0,years,Own assumption: find better,,2025.0,,
-perennials gbr,FOM,0.0,%/year,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2015.0,,
-perennials gbr,VOM,54.5718,EUR/tDM,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,Includes purchase of perennials and revenue from protein concentrate; incl. wages/maintenance/aux costs (R1),2015.0,,
-perennials gbr,biogas-output,0.1947,MWh/tDM,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2015.0,,
-perennials gbr,electricity-input,0.0733,MWh/tDM,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2015.0,,
-perennials gbr,investment,1731269.6984,EUR/tDM/h,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,Includes GBR plant and scaled biogas plant without upgrading,2015.0,,
-perennials gbr,lifetime,25.0,years,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2015.0,,
+perennials gbr,FOM,0.0,%/year,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2020.0,,
+perennials gbr,VOM,51.3661,EUR/tDM,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,Includes purchase of perennials and revenue from protein concentrate; incl. wages/maintenance/aux costs (R1),2020.0,,
+perennials gbr,biogas-output,0.1947,MWh/tDM,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2020.0,,
+perennials gbr,electricity-input,0.0733,MWh/tDM,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2020.0,,
+perennials gbr,investment,1629570.4663,EUR/tDM/h,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,Includes GBR plant and scaled biogas plant without upgrading,2020.0,,
+perennials gbr,lifetime,25.0,years,https://doi.org/10.1016/B978-0-323-95879-0.50147-8,,2020.0,,
 ror,CF,0.66,per unit,NREL/ATB-https://data.openei.org/s3_viewer?bucket=oedi-data-lake&prefix=ATB%2Felectricity%2Fcsv%2F2022%2F,Meaning of scenario and financial case: https://atb.nrel.gov/electricity/2024/definitions#scenarios,2022.0,Market,Advanced
 ror,CF,0.66,per unit,NREL/ATB-https://data.openei.org/s3_viewer?bucket=oedi-data-lake&prefix=ATB%2Felectricity%2Fcsv%2F2022%2F,Meaning of scenario and financial case: https://atb.nrel.gov/electricity/2024/definitions#scenarios,2022.0,Market,Moderate
 ror,CF,0.66,per unit,NREL/ATB-https://data.openei.org/s3_viewer?bucket=oedi-data-lake&prefix=ATB%2Felectricity%2Fcsv%2F2022%2F,Meaning of scenario and financial case: https://atb.nrel.gov/electricity/2024/definitions#scenarios,2022.0,Market,Conservative
