@@ -3229,6 +3229,10 @@ def add_perennials_gbr(
     # --- Constants ---
     LHV_ch4 = 50 / 3.6  # MWh/t_CH4
 
+    # R1 reports CAPEX/OPEX in USD; convert to EUR using the ECB 2020 annual
+    # average reference rate (1 EUR = 1.1422 USD).
+    usd_to_eur_2020 = 1 / 1.1422
+
     # --- Mass & energy balance assumptions (R1) ---
     DM_perennials = 0.18  # dry matter content (t_DM / t_wet)
     ch4_mass_fraction_in_biogas = (
@@ -3265,15 +3269,18 @@ def add_perennials_gbr(
         * (1 / capacity_ratio_biogas_gbr - 1)
     )
 
-    # Base GBR investment from R1 Table 4, divided by input capacity (tDM/h)
-    investment = 9.33e6 / (40 * DM_perennials) + investment_biogas_adjusted
+    # Base GBR investment from R1 Table 4 (Fixed Capital Investment, USD),
+    # converted to EUR, divided by input capacity (tDM/h)
+    investment = (7.24e6 * usd_to_eur_2020) / (
+        40 * DM_perennials
+    ) + investment_biogas_adjusted
 
     # --- OPEX / VOM ---
-    protein_price = 535  # EUR/t (R1)
-    perennial_cost = 130  # EUR/tDM (R1)
+    protein_price = 535 * usd_to_eur_2020  # EUR/t (R1, USD converted)
+    perennial_cost = 130 * usd_to_eur_2020  # EUR/tDM (R1, USD converted)
 
-    # EUR/tDM (R1 Table 4: "labor and maintenance" converted to per tDM)
-    other_VOM = 0.45e6 / (40 * DM_perennials * flh_y)
+    # EUR/tDM (R1 Table 4: "labor and maintenance", USD converted, per tDM)
+    other_VOM = (0.45e6 * usd_to_eur_2020) / (40 * DM_perennials * flh_y)
 
     # EUR/tDM: cost of perennials - revenue from protein + other variable costs
     VOM = (
