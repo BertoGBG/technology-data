@@ -664,14 +664,14 @@ battery inverter,investment,173.8164,EUR/kW,"Danish Energy Agency, inputs/techno
 battery inverter,lifetime,10.0,years,"Danish Energy Agency, inputs/technology_data_catalogue_for_energy_storage.xlsx, Note K.",:  Technical lifetime,2020.0
 battery storage,investment,157.7719,EUR/kWh,"Danish Energy Agency, inputs/technology_data_catalogue_for_energy_storage.xlsx",:  Energy storage expansion cost investment,2020.0
 battery storage,lifetime,27.5,years,"Danish Energy Agency, inputs/technology_data_catalogue_for_energy_storage.xlsx",:  Technical lifetime,2020.0
-biochar pyrolysis,FOM,3.3913,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Fixed O&M",2020.0
-biochar pyrolysis,VOM,59.9468,EUR/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Variable O&M",2020.0
-biochar pyrolysis,biomass-input,7.6748,MWh_biomass/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Biomass Input",2020.0
-biochar pyrolysis,electricity-input,0.3184,MWh_e/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  El-Input",2020.0
-biochar pyrolysis,heat-output,3.7859,MWh_th/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  H-Output",2020.0
-biochar pyrolysis,investment,10771690.2932,EUR/t_CO2/h,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Specific investment",2020.0
-biochar pyrolysis,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Technical lifetime",2020.0
-biochar pyrolysis,yield-biochar,0.0597,t_biochar/MWh_biomass,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  yield biochar",2020.0
+biochar pyrolysis,FOM,3.3913,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Fixed O&M",2025.0
+biochar pyrolysis,VOM,47.6777,EUR/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Variable O&M",2025.0
+biochar pyrolysis,biomass-input,7.6748,MWh_biomass/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Biomass Input Only 70% of carbon in biochar is assumed to be sequestered when spread on soil",2025.0
+biochar pyrolysis,electricity-input,0.3184,MWh_e/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  El-Input",2025.0
+biochar pyrolysis,heat-output,3.7859,MWh_th/t_CO2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  H-Output",2025.0
+biochar pyrolysis,investment,8567083.3233,EUR/t_CO2/h,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Specific investment Only 70% of carbon in biochar is assumed to be sequestered when spread on soil",2025.0
+biochar pyrolysis,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  Technical lifetime",2025.0
+biochar pyrolysis,yield-biochar,0.0597,t_biochar/MWh_biomass,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","105 Slow pyrolysis, Straw:  yield biochar",2025.0
 biodiesel crops,fuel,174.7183,EUR/MWhth,"JRC ENSPRESO ca avg for MINBIORPS1 (rape seed), ENS_BaU_GFTM",,2010.0
 biodiesel from rapeseed,efficiency,0.4176,t_biodiesel/t_rapeseed,JRC Technical Report doi:10.2760/69179 Tables 155+159,calculated as: t_crude_oil/t_rapeseed 9% moisture (Eurostat standard humidity 9%) x crude-to-FAME (1/1.0063),
 bioethanol crops,CO2 intensity,0.1289,tCO2/MWh_th,,"CO2 released during fermentation of bioethanol crops, based on stochiometric composition: C6H12O6 -> 2 C2H5OH + 2 CO2 , i.e. 1 kg ethanol → ~0.956 kg CO₂ (from fermentation) → 0.1289 tCO₂/MWh (with LHV = 26.7 MJ/kg).",
@@ -778,14 +778,14 @@ biomethanation,hydrogen-input,1.0,MWh_H2/MWh_H2,"Danish Energy Agency, inputs/da
 biomethanation,investment,1396.8202,EUR/kW_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",106 Biomethanation of biogas:  Specific investment ,2020.0
 biomethanation,lifetime,30.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",106 Biomethanation of biogas:  Technical lifetime,2020.0
 biomethanation,methane-output,1.9673,MWh_CH4/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  Methane Output,",2020.0
-biomethanation CO2,CO2-input,0.165,t_CO2/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  CO2 Input,",2015.0
-biomethanation CO2,FOM,5.9259,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",106 Biomethanation of biogas:  Fixed O&M ,2015.0
-biomethanation CO2,electricity-input,0.0417,MWh_e/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  El-Input,",2015.0
-biomethanation CO2,heat-output,0.1667,MWh_th/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  H-Output,",2015.0
-biomethanation CO2,hydrogen-input,1.0,MWh_H2/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  Hydrogen Input,",2015.0
-biomethanation CO2,investment,620.7455,EUR/kW_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",scaled from biomethanation based on volumetric flow,2015.0
-biomethanation CO2,lifetime,30.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",106 Biomethanation of biogas:  Technical lifetime,2015.0
-biomethanation CO2,methane-output,0.8229,MWh_CH4/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  Methane Output,",2015.0
+biomethanation CO2,CO2-input,0.165,t_CO2/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  CO2 Input,",2020.0
+biomethanation CO2,FOM,5.9259,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",106 Biomethanation of biogas:  Fixed O&M ,2020.0
+biomethanation CO2,electricity-input,0.0417,MWh_e/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  El-Input,",2020.0
+biomethanation CO2,heat-output,0.1667,MWh_th/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  H-Output,",2020.0
+biomethanation CO2,hydrogen-input,1.0,MWh_H2/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  Hydrogen Input,",2020.0
+biomethanation CO2,investment,584.2813,EUR/kW_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",scaled from biomethanation based on volumetric flow,2020.0
+biomethanation CO2,lifetime,30.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",106 Biomethanation of biogas:  Technical lifetime,2020.0
+biomethanation CO2,methane-output,0.8229,MWh_CH4/MWh_H2,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","106 Biomethanation of biogas:  Methane Output,",2020.0
 blast furnace-basic oxygen furnace,FOM,14.18,%/year,"Model assumptions from MPP Steel Transition Tool: https://github.com/missionpossiblepartnership/mpp-steel-model/blob/9eca52db92bd2d9715f30e98ccaaf36677fdb516/mppsteel/data/import_data/CAPEX%20OPEX%20Per%20Technology.xlsx, accessed: 2025-04-15.",123.67 EUR/t_steel output/a. MPP steel tool uses CAPEX/OPEX for technology ‘BF-BOF’.,2020.0
 blast furnace-basic oxygen furnace,coal-input,5.34,MWh_coal/t_steel,"Mission Possible Partnership (2022): Steel Model https://github.com/missionpossiblepartnership/mpp-steel-model/blob/9eca52db92bd2d9715f30e98ccaaf36677fdb516/mppsteel/data/import_data/Technology%20Business%20Cases.csv#L21, accessed: 2025-11-10). ","Based on process ‘BAT BF-BOF` Emissivity without CCS using specific emissivity for coal of 0.3361 t_CO2/MWh; composition of 0.44 GJ met-coal, 4.75 GJ coke, 1.35 GJ thermal coal which is translated to one representative coal demand which also includes coal demand for intermediate products like BF gas, BOF gas and COG.",2020.0
 blast furnace-basic oxygen furnace,economic_lifetime,20.0,years,"Mission Possible Partnership (2022): Steel Model Documentation (https://mpp.gitbook.io/mpp-steel-model/model-overview/model-components/technologies, accessed: 2025-04-15).",,2020.0
