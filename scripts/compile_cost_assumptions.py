@@ -134,7 +134,9 @@ dea_sheet_names = {
     "solid biomass boiler steam": "311.1e Steam boiler Wood",
     "solid biomass boiler steam CC": "311.1e Steam boiler Wood",
     "biomass boiler": "204 Biomass boiler, automatic",
-    "electrolysis": "86 AEC 100 MW",
+    "AEC large": "86 AEC 100 MW",
+    "PEMEC large": "86 PEMEC 100 MW",
+    "SOEC large": "SOEC 100 MW",
     "direct air capture": "403.a Direct air capture",
     "biomass CHP capture": "401.a Post comb - small CHP",
     "cement capture": "401.c Post comb - Cement kiln",
@@ -151,7 +153,9 @@ dea_sheet_names = {
     "waste CHP": "08 WtE CHP, Large, 50 degree",
     "waste CHP CC": "08 WtE CHP, Large, 50 degree",
     "biochar pyrolysis": "105 Slow pyrolysis, Straw",
-    "electrolysis small": "86 AEC 10 MW",
+    "AEC small": "86 AEC 10 MW",
+    "PEMEC small": "86 PEMEC 10 MW",
+    "SOEC small": "SOEC 10 MW",
     "gas storage": "150 Underground Storage of Gas",
     "biomethanation": "106 Biomethanation of biogas",
 }
@@ -201,7 +205,9 @@ uncrtnty_lookup = {
     "biogas": "I:J",
     "biogas CC": "I:J",
     "biogas upgrading": "I:J",
-    "electrolysis": "I:J",
+    "AEC large": "I:J",
+    "PEMEC large": "I:J",
+    "SOEC large": "I:J",
     "battery": "H,K",
     "direct air capture": "I:J",
     "cement capture": "I:J",
@@ -226,7 +232,9 @@ uncrtnty_lookup = {
     "waste CHP CC": "I:J",
     "biochar pyrolysis": "J:K",
     "biomethanation": "J:K",
-    "electrolysis small": "I:J",
+    "AEC small": "I:J",
+    "PEMEC small": "I:J",
+    "SOEC small": "I:J",
     "gas storage": "",
 }
 
@@ -239,7 +247,9 @@ cost_year_2020 = [
     "solar-rooftop residential",
     "solar-rooftop commercial",
     "offwind",
-    "electrolysis",
+    "AEC large",
+    "PEMEC large",
+    "SOEC large",
     "biogas",
     "biogas CC",
     "biogas upgrading",
@@ -255,7 +265,9 @@ cost_year_2020 = [
     "Fischer-Tropsch",
     "biomethanation",
     "biomethanation CO2",
-    "electrolysis small",
+    "AEC small",
+    "PEMEC small",
+    "SOEC small",
     "central water pit storage",
     "central water tank storage",
     "decentral water tank storage",
@@ -762,6 +774,11 @@ def get_data_DEA(
         "production capacity for one unit",
         "Output capacity expansion cost",
         "Hydrogen Output",
+        "HHV to LHV",  # electrolysis (AEC/PEMEC/SOEC): HHV->LHV delta for "Hydrogen Output"
+        "Electricity (% total input",  # electrolysis: electrical share of total input (SOEC < 100%)
+        "Heat (% total input",  # SOEC: external heat share of total input
+        "Frequency of stack replacement",  # electrolysis: hours between stack replacements, per year
+        "hereof electrolyser stack",  # electrolysis: stack's share of specific investment, per year
         "Hydrogen (% total input_e (MWh / MWh))",
         "Hydrogen [% total input_e",
         " - hereof recoverable for district heating (%-points of heat loss)",
@@ -1332,7 +1349,13 @@ def add_solar_from_other(years: list, cost_dataframe: pd.DataFrame) -> pd.DataFr
 # [add-h2-from-other]
 def add_h2_from_other(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    The function assumes higher efficiency for electrolysis (0.8) and fuel cell (0.58).
+    The function assumes higher efficiency for fuel cell (0.58).
+
+    Electrolysis (AEC/PEMEC/SOEC) efficiency previously had a similar
+    override applied here (0.8, from budischak2013) -- removed so all three
+    electrolyser technologies keep their own DEA-sourced, LHV-corrected
+    efficiency (see order_data's "HHV to LHV" handling) instead of being
+    overwritten with one generic literature value.
 
     Parameters
     ----------
@@ -1345,10 +1368,7 @@ def add_h2_from_other(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
         updated cost dataframe
     """
 
-    cost_dataframe.loc[("electrolysis", "efficiency"), "value"] = 0.8
     cost_dataframe.loc[("fuel cell", "efficiency"), "value"] = 0.58
-    cost_dataframe.loc[("electrolysis", "efficiency"), "source"] = "budischak2013"
-    cost_dataframe.loc[("electrolysis", "efficiency"), "currency_year"] = 2013
     cost_dataframe.loc[("fuel cell", "efficiency"), "source"] = "budischak2013"
     cost_dataframe.loc[("fuel cell", "efficiency"), "currency_year"] = 2013
 
@@ -2226,6 +2246,98 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
         switch = False
         df = technology_dataframe.loc[tech_name]
 
+        # Electrolysis (AEC/PEMEC/SOEC) pre-processing, run before the
+        # investment/VOM extraction below so the rescaled/added values are
+        # what that extraction actually sees.
+        #
+        # 1) SOEC-specific: DEA normalises "Specific investment" and
+        #    "Variable O&M" on a *combined* electricity+heat input basis
+        #    (SOEC draws external heat, unlike AEC/PEMEC which are
+        #    electricity-only). GreenBubble sizes the electrolyser link's
+        #    capacity/capital_cost on bus0 = electricity only, so both are
+        #    rescaled onto a purely electrical-input basis by dividing out
+        #    the electrical share. AEC/PEMEC never enter this branch (they
+        #    have no "Heat (% total input" row), so they are untouched.
+        # get_data_DEA() already strips the bracketed unit suffix off the
+        # index (" (% total input [MWh / MWh])" etc.) before returning, so
+        # by this point these rows are just bare "Electricity" / "Heat".
+        elec_share_mask = df.index == "Electricity"
+        heat_share_mask = df.index == "Heat"
+        if elec_share_mask.any() and heat_share_mask.any():
+            elec_share = df.loc[elec_share_mask, years].astype(float).iloc[0] / 100.0
+            heat_share = df.loc[heat_share_mask, years].astype(float).iloc[0] / 100.0
+
+            # get_data_DEA()'s bracket-stripping collapses "Specific
+            # investment [EUR/kW of total input]" and "Specific investment
+            # [EUR/kgH2/day of max output]" to the identical index text
+            # "Specific investment" -- the unit column still distinguishes
+            # them, so exclude the alternate kgH2/day metric by unit, not
+            # index text. Exact index match (not `contains`) already
+            # excludes the "- hereof ..." breakdown sub-lines.
+            investment_mask = (df.index == "Specific investment") & ~df.unit.str.contains(
+                "kgH2", na=False
+            )
+            vom_mask = df.index.str.contains("Variable O&M", regex=False)
+            for mask in (investment_mask, vom_mask):
+                if mask.any():
+                    df.loc[mask, years] = (
+                        df.loc[mask, years].astype(float).values / elec_share.values
+                    )
+            if investment_mask.any():
+                df.loc[investment_mask, "unit"] = "EUR/MW_e"
+                df = df.rename(
+                    index={
+                        idx: f"{idx} (per unit electrical input)"
+                        for idx in df.index[investment_mask]
+                    }
+                )
+
+        # 2) Stack-replacement (degradation) cost, folded into Variable
+        #    O&M. DEA states its base "Fixed O&M" % explicitly excludes
+        #    stack replacement. The stack's cost share and replacement
+        #    frequency are both given per year, so this is added as a
+        #    genuine variable cost (EUR/MWh_e) rather than an FOM markup
+        #    that would require assuming an annual full-load-hours figure
+        #    DEA doesn't provide -- degradation tracks energy throughput,
+        #    not calendar time.
+        #
+        #    Note: DEA's own "Variable O&M" row for AEC/PEMEC/SOEC is "-"
+        #    (n/a) for every year, so it never survives the earlier
+        #    all-zero row drop in the main pipeline and is never present
+        #    in `df` here -- the degradation term is these techs' *only*
+        #    VOM, not an addition to an existing one, so the row is built
+        #    from scratch.
+        stack_freq_mask = df.index.str.contains(
+            "Frequency of stack replacement", regex=False
+        )
+        stack_cost_mask = df.index.str.contains("hereof electrolyser stack", regex=False)
+        if stack_freq_mask.any() and stack_cost_mask.any():
+            freq_h = df.loc[stack_freq_mask, years].astype(float).iloc[0]
+            stack_cost = df.loc[stack_cost_mask, years].astype(float).iloc[0]  # EUR/MW_e
+            degradation_vom = stack_cost / freq_h  # EUR/MWh_e
+
+            vom_mask = df.index.str.contains("Variable O&M", regex=False)
+            if vom_mask.any():
+                df.loc[vom_mask, years] = (
+                    df.loc[vom_mask, years].astype(float).values
+                    + degradation_vom.values
+                )
+                df = df.rename(
+                    index={
+                        idx: f"{idx} (incl. stack replacement cost)"
+                        for idx in df.index[vom_mask]
+                    }
+                )
+            else:
+                vom_row = df.loc[stack_cost_mask].copy()
+                vom_row.loc[:, years] = degradation_vom.values
+                vom_row["unit"] = "EUR/MWh_e"
+                vom_row.index = [
+                    "Variable O&M (stack replacement cost; DEA reports no base VOM)"
+                ]
+                vom_row["parameter"] = "VOM"
+                clean_df[tech_name] = pd.concat([clean_df[tech_name], vom_row])
+
         # --- investment ----
         investment = df[
             (
@@ -2266,7 +2378,7 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 )
         else:
             investment["parameter"] = "investment"
-            clean_df[tech_name] = investment
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], investment])
 
         # ---- FOM ----------------
         if len(investment):
@@ -2393,6 +2505,7 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 (df.index.str.contains("efficiency"))
                 | (df.index.str.contains("Hydrogen output, at LHV"))
                 | (df.index.str.contains("Hydrogen Output"))
+                | (df.index.str.contains("HHV to LHV"))
                 | (df.index.str.contains("FT Liquids Output, MWh/MWh Total Input"))
                 | (df.index.str.contains("Methanol Output"))
                 | (df.index.str.contains("District heat  Output"))
@@ -2442,6 +2555,59 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | df.unit.str.contains("% MWh_feedstock")
             )
         ].copy()
+
+        # DEA reports "Hydrogen Output" on an HHV basis for the electrolysis
+        # (AEC/PEMEC/SOEC) sheets, alongside an explicit "HHV to LHV" delta
+        # row. This repo's (and GreenBubble's) convention is LHV, so subtract
+        # the sheet's own delta here -- done unconditionally, independent of
+        # whether the tech also has a heat-recovery row below (SOEC doesn't,
+        # since it consumes heat rather than rejecting it, but still needs
+        # the same HHV->LHV correction).
+        h2_output_mask = efficiency.index.str.contains("Hydrogen Output")
+        hhv_to_lhv_mask = efficiency.index.str.contains("HHV to LHV")
+        if h2_output_mask.any() and hhv_to_lhv_mask.any():
+            hhv_to_lhv_vals = efficiency.loc[hhv_to_lhv_mask, years].astype(float).values
+            efficiency.loc[h2_output_mask, years] = (
+                efficiency.loc[h2_output_mask, years].astype(float).values
+                - hhv_to_lhv_vals
+            )
+            efficiency = efficiency.rename(
+                index={
+                    idx: f"{idx} (LHV based, HHV corrected)"
+                    for idx in efficiency.index[h2_output_mask]
+                }
+            )
+            efficiency = efficiency[~efficiency.index.str.contains("HHV to LHV")]
+
+        # SOEC-specific: "Hydrogen Output" (already LHV-corrected above) is
+        # normalised by DEA on a *combined* electricity+heat input basis
+        # (SOEC draws external heat, unlike AEC/PEMEC which are
+        # electricity-only). GreenBubble's electrolyser link efficiency is
+        # applied against bus0 = electricity only, so it's rescaled onto a
+        # purely electrical-input basis here (investment/VOM are rescaled
+        # further up, before the investment/VOM extraction runs). AEC/PEMEC
+        # never enter this branch (no "Heat (% total input" row).
+        if elec_share_mask.any() and heat_share_mask.any():
+            h2_eff_mask = efficiency.index.str.contains("Hydrogen Output")
+            efficiency.loc[h2_eff_mask, years] = (
+                efficiency.loc[h2_eff_mask, years].astype(float).values
+                / elec_share.values
+            )
+            efficiency = efficiency.rename(
+                index={
+                    idx: f"{idx} (per unit electrical input)"
+                    for idx in efficiency.index[h2_eff_mask]
+                }
+            )
+
+            # heat consumed per unit electrical input -> new efficiency-heat row
+            efficiency_heat_in = df.loc[heat_share_mask].copy()
+            efficiency_heat_in.loc[:, years] = (heat_share / elec_share * 100).values
+            efficiency_heat_in["parameter"] = "efficiency-heat"
+            efficiency_heat_in.index = [
+                f"{idx} (per unit electrical input)" for idx in efficiency_heat_in.index
+            ]
+            clean_df[tech_name] = pd.concat([clean_df[tech_name], efficiency_heat_in])
 
         if tech_name in ["Fischer-Tropsch", "Haber-Bosch"]:
             efficiency[years] *= 100

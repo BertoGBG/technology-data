@@ -1,4 +1,16 @@
 technology,parameter,value,unit,source,further description,currency_year
+AEC large,FOM,4.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:  Fixed O&M ,2020.0
+AEC large,VOM,1.5693,EUR/MWh_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:  Variable O&M (stack replacement cost; DEA reports no base VOM),2020.0
+AEC large,efficiency,0.4962,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","86 AEC 100 MW:  Hydrogen Output (LHV based, HHV corrected)",2020.0
+AEC large,efficiency-heat,0.2228,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:   - hereof recoverable for district heating,2020.0
+AEC large,investment,691.534,EUR/kW_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:  Specific investment,2020.0
+AEC large,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:  Technical lifetime,2020.0
+AEC small,FOM,4.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Fixed O&M ,2020.0
+AEC small,VOM,1.5871,EUR/MWh_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Variable O&M (stack replacement cost; DEA reports no base VOM),2020.0
+AEC small,efficiency,0.4962,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","86 AEC 10 MW:  Hydrogen Output (LHV based, HHV corrected)",2020.0
+AEC small,efficiency-heat,0.2228,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:   - hereof recoverable for district heating,2020.0
+AEC small,investment,1100.1678,EUR/kW_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Specific investment,2020.0
+AEC small,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Technical lifetime of plant,2020.0
 Afforestation,FOM,5.0,%/year,https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515 ,recalculated from maintenance cost and assumption on investment),2020.0
 Afforestation,investment,7732.6078,EUR/ha,https://onlinelibrary.wiley.com/doi/epdf/10.1111/rec.13515,assumed to be 1/3 of the upper bound for active restoration costs,2020.0
 Afforestation,lifetime,30.0,years,https://onlinelibrary.wiley.com/doi/full/10.1111/rec.13515,(young forest age 0-19 y),
@@ -555,6 +567,18 @@ PEM electrolyzer small size,FOM,3.0,%/year,"JRC, 01_JRC-EU-TIMES Full model, htt
 PEM electrolyzer small size,electricity-input,1.33,MWh_el/MWh_H2,"JRC, 01_JRC-EU-TIMES Full model, https://zenodo.org/records/3544900, file `SubRES_15_TECHS_HYDROGEN.xlsx`  (SELCH2PEM01, H2 Production-Proton Exchange Membrane) and currency year from file `SubRES_15_TECHS_HYDROGEN.xlsx`, Sheet `INPUT-Data(HP)`",Reference capacity 1 MW,
 PEM electrolyzer small size,investment,1372.0508,EUR/kW,"JRC, 01_JRC-EU-TIMES Full model, https://zenodo.org/records/3544900, file `SubRES_15_TECHS_HYDROGEN.xlsx`  (SELCH2PEM01, H2 Production-Proton Exchange Membrane) and currency year from file `SubRES_15_TECHS_HYDROGEN.xlsx`, Sheet `INPUT-Data(HP)`",Reference capacity 1 MW,2010.0
 PEM electrolyzer small size,lifetime,7.0,years,"JRC, 01_JRC-EU-TIMES Full model, https://zenodo.org/records/3544900, file `SubRES_15_TECHS_HYDROGEN.xlsx`  (SELCH2PEM01, H2 Production-Proton Exchange Membrane) and currency year from file `SubRES_15_TECHS_HYDROGEN.xlsx`, Sheet `INPUT-Data(HP)`","Likely stack lifetime, rather than electrolyzer system lifetime",
+PEMEC large,FOM,2.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 100 MW:  Fixed O&M ,2020.0
+PEMEC large,VOM,3.6042,EUR/MWh_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 100 MW:  Variable O&M (stack replacement cost; DEA reports no base VOM),2020.0
+PEMEC large,efficiency,0.4645,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","86 PEMEC 100 MW:  Hydrogen Output (LHV based, HHV corrected)",2020.0
+PEMEC large,efficiency-heat,0.2645,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 100 MW:   - hereof recoverable for district heating,2020.0
+PEMEC large,investment,817.2675,EUR/kW_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 100 MW:  Specific investment,2020.0
+PEMEC large,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 100 MW:  Technical lifetime,2020.0
+PEMEC small,FOM,2.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 10 MW:  Fixed O&M ,2020.0
+PEMEC small,VOM,3.6532,EUR/MWh_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 10 MW:  Variable O&M (stack replacement cost; DEA reports no base VOM),2020.0
+PEMEC small,efficiency,0.4645,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","86 PEMEC 10 MW:  Hydrogen Output (LHV based, HHV corrected)",2020.0
+PEMEC small,efficiency-heat,0.2645,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 10 MW:   - hereof recoverable for district heating,2020.0
+PEMEC small,investment,1194.4679,EUR/kW_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 10 MW:  Specific investment,2020.0
+PEMEC small,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 PEMEC 10 MW:  Technical lifetime,2020.0
 PHS,FOM,1.0,%/year,DIW DataDoc http://hdl.handle.net/10419/80348, from old pypsa cost assumptions,2015.0
 PHS,efficiency,0.75,per unit,DIW DataDoc http://hdl.handle.net/10419/80348, from old pypsa cost assumptions,2015.0
 PHS,investment,2888.5279,EUR/kWel,DIW DataDoc http://hdl.handle.net/10419/80348, from old pypsa cost assumptions,2010.0
@@ -593,6 +617,18 @@ SOEC,FOM,4.0,%/year,ICCT IRA e-fuels assumptions ,US-based assumptions for a Con
 SOEC,electricity-input,1.19,MWh_el/MWh_H2,ICCT IRA e-fuels assumptions ,,
 SOEC,investment,2820.8871,USD/kW,"ICCT IRA e-fuels assumptions, https://theicct.org/wp-content/uploads/2022/02/fuels-eu-cost-renew-H-produced-onsite-H-refueling-stations-europe-feb22.pdf adjusted according to DOE observations https://www.hydrogen.energy.gov/docs/hydrogenprogramlibraries/pdfs/24005-clean-hydrogen-production-cost-pem-electrolyzer.pdf?sfvrsn=8cb10889_1#:~:text=This%20Record%20shows%20that%20the,factors%20of%2050%2D75%25",US-based assumptions for a Conservative cost scenario,2022.0
 SOEC,lifetime,30.0,years,ICCT IRA e-fuels assumptions ,,
+SOEC large,FOM,12.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 100 MW:  Fixed O&M ,2020.0
+SOEC large,VOM,13.2523,EUR/MWh_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 100 MW:  Variable O&M (stack replacement cost; DEA reports no base VOM),2020.0
+SOEC large,efficiency,0.6651,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","SOEC 100 MW:  Hydrogen Output (LHV based, HHV corrected) (per unit electrical input)",2020.0
+SOEC large,efficiency-heat,0.2422,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 100 MW:  Heat (per unit electrical input),2020.0
+SOEC large,investment,1210.4774,EUR/kW_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 100 MW:  Specific investment (per unit electrical input),2020.0
+SOEC large,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 100 MW:  Technical lifetime,2020.0
+SOEC small,FOM,12.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 10 MW:  Fixed O&M ,2020.0
+SOEC small,VOM,13.3649,EUR/MWh_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 10 MW:  Variable O&M (stack replacement cost; DEA reports no base VOM),2020.0
+SOEC small,efficiency,0.6651,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx","SOEC 10 MW:  Hydrogen Output (LHV based, HHV corrected) (per unit electrical input)",2020.0
+SOEC small,efficiency-heat,0.2422,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 10 MW:  Heat (per unit electrical input),2020.0
+SOEC small,investment,1952.3829,EUR/kW_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 10 MW:  Specific investment (per unit electrical input),2020.0
+SOEC small,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",SOEC 10 MW:  Technical lifetime,2020.0
 Sand-charger,FOM,1.075,%/year,"Viswanathan_2022, NULL","{'carrier': ['elec', 'sand'], 'technology_type': ['charger'], 'type': ['thermal'], 'note': ['Guesstimate, 50% on charger']}",2020.0
 Sand-charger,efficiency,0.99,per unit,"Viswanathan_2022, p.107 (p.129)","{'carrier': ['elec', 'sand'], 'technology_type': ['charger'], 'type': ['thermal'], 'note': ['RTE assume 99% for charge and other for discharge']}",2020.0
 Sand-charger,investment,181297.9281,EUR/MW,"Georgiou_2018, Guesstimate that charge is 20% of capital costs of power components for sensible thermal storage","{'carrier': ['elec', 'sand'], 'technology_type': ['charger'], 'type': ['thermal'], 'note': ['Power Equipment Charge']}",2020.0
@@ -1067,16 +1103,10 @@ electrobiofuels,efficiency-biomass,1.3217,per unit,Stoichiometric calculation,,
 electrobiofuels,efficiency-hydrogen,1.0698,per unit,Stoichiometric calculation,,
 electrobiofuels,efficiency-tot,0.5912,per unit,Stoichiometric calculation,,
 electrobiofuels,investment,5179.7608,EUR/kW_th,combination of BtL and electrofuels,,2020.0
-electrolysis,FOM,4.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:  Fixed O&M ,2020.0
-electrolysis,efficiency,0.6217,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:  Hydrogen Output,2020.0
-electrolysis,efficiency-heat,0.2228,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:   - hereof recoverable for district heating,2020.0
+electrolysis,FOM,4.0,%/year,NREL http://www.nrel.gov/docs/fy09osti/45873.pdf; budischak2013, from old pypsa cost assumptions,2015.0
+electrolysis,efficiency,0.8,per unit,NREL http://www.nrel.gov/docs/fy09osti/45873.pdf; budischak2013, from old pypsa cost assumptions,2015.0
 electrolysis,investment,1886.0019,EUR/kW_e,private communications; IEA https://iea.blob.core.windows.net/assets/9e0c82d4-06d2-496b-9542-f184ba803645/TheRoleofE-fuelsinDecarbonisingTransport.pdf,,2020.0
-electrolysis,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 100 MW:  Technical lifetime,2020.0
-electrolysis small,FOM,4.0,%/year,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Fixed O&M ,2020.0
-electrolysis small,efficiency,0.6217,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Hydrogen Output,2020.0
-electrolysis small,efficiency-heat,0.2228,per unit,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:   - hereof recoverable for district heating,2020.0
-electrolysis small,investment,1100.1678,EUR/kW_e,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Specific investment,2020.0
-electrolysis small,lifetime,25.0,years,"Danish Energy Agency, inputs/data_sheets_for_renewable_fuels.xlsx",86 AEC 10 MW:  Technical lifetime of plant,2020.0
+electrolysis,lifetime,18.0,years,NREL http://www.nrel.gov/docs/fy09osti/45873.pdf; budischak2013, from old pypsa cost assumptions,2015.0
 ethanol carbon capture retrofit,FOM,7.0,%/year,"National Petroleum Council, Meeting the Dual Challenge - A Roadmap to At-Scale Deployment of Carbon Capture, Use, and Storage: https://dualchallenge.npc.org/files/CCUS-Chap_2-030521.pdf, p2-21, accessed 2025-04-16",,2019.0
 ethanol carbon capture retrofit,capture_rate,0.94,per unit,"National Petroleum Council, Meeting the Dual Challenge - A Roadmap to At-Scale Deployment of Carbon Capture, Use, and Storage: https://dualchallenge.npc.org/files/CCUS-Chap_2-030521.pdf, p2-16, accessed 2025-04-16",,2019.0
 ethanol carbon capture retrofit,electricity-input,0.12,MWh/tCO2,"National Petroleum Council, Meeting the Dual Challenge - A Roadmap to At-Scale Deployment of Carbon Capture, Use, and Storage: https://dualchallenge.npc.org/files/CCUS-Chap_2-030521.pdf, p2-20, accessed 2025-04-16",,2019.0
