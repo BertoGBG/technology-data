@@ -1397,6 +1397,7 @@ def unify_diw(cost_dataframe: pd.DataFrame) -> pd.DataFrame:
 
     return cost_dataframe
 
+
 def biomethanation_dea(df):
     """
     This function does:
@@ -1483,6 +1484,7 @@ def biomethanation_dea(df):
 
     return df
 
+
 def methanation_biogas_dea(df):
     """
     This function does:
@@ -1501,7 +1503,6 @@ def methanation_biogas_dea(df):
     idx6 = df.index[df.index.str.contains("District Heating Output")]
     idx7 = df.index[df.index.str.contains("EUR")]
 
-
     # H2/SNG ratio (MW/MW)
     SNG_H2_ratio = df.loc[idx5].astype(float) / df.loc[idx2[0]].astype(float)
 
@@ -1509,10 +1510,11 @@ def methanation_biogas_dea(df):
     df.loc[idx7] = df.loc[idx7].astype(float).mul(SNG_H2_ratio.values.flatten(), axis=1)
     df.index = [
         i.replace("MWh", "MWh_H2")
-         .replace(" /MW ", " /MW_H2 ")
-         .replace(" /MW/", " /MW_H2/")
-         .replace(" SNG", "")
-        if i in idx7 else i
+        .replace(" /MW ", " /MW_H2 ")
+        .replace(" /MW/", " /MW_H2/")
+        .replace(" SNG", "")
+        if i in idx7
+        else i
         for i in df.index
     ]
 
@@ -1528,7 +1530,6 @@ def methanation_biogas_dea(df):
         "Electricity Consumption": "El-Input",
         "SNG Output": "Methane Output",
         "District Heating Output": "H-Output",
-
     }
 
     old_units = {
@@ -5160,8 +5161,10 @@ if __name__ == "__main__":
         # biochar pyrolysis investment/FOM/VOM are already given in eur_year
         # EUR (not the DEA-catalogue-wide 2020 EUR assumed via cost_year_2020),
         # so it is exempted from inflation adjustment entirely
-        techs = costs_tot.index.get_level_values(0).unique().drop(
-            "biochar pyrolysis", errors="ignore"
+        techs = (
+            costs_tot.index.get_level_values(0)
+            .unique()
+            .drop("biochar pyrolysis", errors="ignore")
         )
         costs_tot["currency_year"] = costs_tot.currency_year.astype(float)
         costs_tot = adjust_for_inflation(
