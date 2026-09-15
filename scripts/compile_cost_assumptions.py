@@ -146,6 +146,7 @@ dea_sheet_names = {
     "biogas plus hydrogen": "99 SNG from methan. of biogas",
     "methanation biogas": "99 SNG from methan. of biogas",
     "methanolisation": "98 Methanol from hydrogen",
+    "methanolisation DEA": "98 Methanol from hydrogen",
     "Fischer-Tropsch": "102 Hydrogen to Jet",
     "central hydrogen CHP": "12 LT-PEMFC CHP",
     "Haber-Bosch": "103 Hydrogen to Ammonia",
@@ -228,6 +229,7 @@ uncrtnty_lookup = {
     "Haber-Bosch": "I:J",
     "air separation unit": "I:J",
     "methanolisation": "J:K",
+    "methanolisation DEA": "J:K",
     "waste CHP": "I:J",
     "waste CHP CC": "I:J",
     "biochar pyrolysis": "J:K",
@@ -262,6 +264,7 @@ cost_year_2020 = [
     "biogas plus hydrogen",
     "methanation biogas",
     "methanolisation",
+    "methanolisation DEA",
     "Fischer-Tropsch",
     "biomethanation",
     "biomethanation CO2",
@@ -831,7 +834,7 @@ def get_data_DEA(
             "Heat generation from geothermal heat (MJ/s)",
         ]
 
-    if tech_name == "methanolisation":
+    if tech_name in ("methanolisation", "methanolisation DEA"):
         parameters += ["District heating"]
 
     if tech_name == "Fischer-Tropsch":
@@ -904,7 +907,7 @@ def get_data_DEA(
     if tech_name == "biomass-to-methanol":
         df.drop(df.loc[df.index.str.contains("1,000 t Methanol")].index, inplace=True)
 
-    if tech_name == "methanolisation":
+    if tech_name in ("methanolisation", "methanolisation DEA"):
         df.drop(df.loc[df.index.str.contains("1,000 t Methanol")].index, inplace=True)
 
     if tech_name == "Fischer-Tropsch":
@@ -2042,11 +2045,12 @@ def clean_up_units(
             }
         )
 
-        if "methanolisation" in technology_dataframe.index:
-            technology_dataframe = technology_dataframe.sort_index()
-            technology_dataframe.loc[("methanolisation", "Variable O&M"), "unit"] = (
-                "EUR/MWh_MeOH"
-            )
+        for _meoh in ("methanolisation", "methanolisation DEA"):
+            if _meoh in technology_dataframe.index:
+                technology_dataframe = technology_dataframe.sort_index()
+                technology_dataframe.loc[(_meoh, "Variable O&M"), "unit"] = (
+                    "EUR/MWh_MeOH"
+                )
 
     technology_dataframe.unit = technology_dataframe.unit.str.replace(r"\)", "")
     return technology_dataframe
@@ -3836,6 +3840,7 @@ def carbon_flow(
     for tech_name in [
         "Fischer-Tropsch",
         "methanolisation",
+        "methanolisation DEA",
         "BtL",
         "biomass-to-methanol",
         "BioSNG",
