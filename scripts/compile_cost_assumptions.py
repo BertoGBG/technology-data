@@ -147,6 +147,11 @@ dea_sheet_names = {
     "biogas plus hydrogen": "99 SNG from methan. of biogas",
     "methanation biogas": "99 SNG from methan. of biogas",
     "methanolisation": "98 Methanol from hydrogen",
+    # v15-only sheet (exact name, 31-char Excel truncation). Bi-reforming of biogas
+    # with added hydrogen -> methanol; see DEA v14 ch. "Methanol from Hydrogen and
+    # Biogas". NOTE the datasheet also lists an oxygen input, so check which
+    # reforming variant it represents before reading it as pure eSMR.
+    "methanol from biogas": "97 Methanol from biogas and hyd",
     "Fischer-Tropsch": "102 Hydrogen to Jet",
     "central hydrogen CHP": "12 LT-PEMFC CHP",
     "Haber-Bosch": "103 Hydrogen to Ammonia",
@@ -230,6 +235,7 @@ uncrtnty_lookup = {
     "Haber-Bosch": "I:J",
     "air separation unit": "I:J",
     "methanolisation": "J:K",
+    "methanol from biogas": "G:H",  # v15 layout: B..F years, G/H = 2020 Lower/Upper
     "waste CHP": "I:J",
     "waste CHP CC": "I:J",
     "biochar pyrolysis": "J:K",
@@ -265,6 +271,7 @@ cost_year_2020 = [
     "biogas plus hydrogen",
     "methanation biogas",
     "methanolisation",
+    "methanol from biogas",
     "Fischer-Tropsch",
     "biomethanation",
     "biomethanation CO2",
@@ -359,6 +366,19 @@ def get_sheet_location(
     str
         Excel file name where the technology is present
     """
+
+    # EXACT sheet-name match first. Matching by substring alone is ambiguous once a
+    # second edition of a catalogue is present: v15 of the renewable-fuels workbook
+    # renumbers its sheets, so "SOEC 10 MW" is a substring of both the v14 sheet of
+    # that exact name and the v15 sheet "80 SOEC 10 MW". Preferring an exact hit keeps
+    # every existing mapping resolving to the edition it was written against.
+    exact_list = [
+        key
+        for key, value in input_data_dict.items()
+        if any(sheet_names_dict[tech_name] == s.strip() for s in value)
+    ]
+    if len(exact_list) == 1:
+        return exact_list[0]
 
     key_list = [
         key
@@ -700,7 +720,12 @@ def get_data_DEA(
 
     usecols += f",{uncrtnty_lookup[tech_name]}"
 
-    if (
+    if "renewable_fuels_15" in excel_file:
+        # v15 of the renewable-fuels catalogue is laid out exactly like v14 but shifted
+        # down one row by a "Back to Index" navigation row, so one extra row is skipped
+        # to land on the same "year" header.
+        skiprows = [0, 1]
+    elif (
         (tech_name in cost_year_2019)
         or (tech_name in cost_year_2020)
         or ("renewable_fuels" in excel_file)
@@ -846,6 +871,18 @@ def get_data_DEA(
 
     if tech_name == "methanation biogas":
         parameters += ["SNG Output", "Biogas Consumption", "District Heating Output"]
+
+    if tech_name == "methanol from biogas":
+        # full labels, not stems: "Biogas [" alone would also pull in the Nm3/h plant-size
+        # row and the ton/ton duplicate, and the selector matches by substring.
+        parameters += [
+            "Biogas [MWh/ton-methanol]",
+            "Hydrogen [MWh/ton-methanol]",
+            "Electricity [MWh/ton-methanol]",
+            "Net steam [MWh/ton-methanol]",
+            "Oxygen [ton/ton-methanol]",
+            "Water [ton/ton-methanol]",
+        ]
 
     df = pd.DataFrame()
     for para in parameters:
@@ -1019,6 +1056,9 @@ def get_data_DEA(
 
     if "biochar pyrolysis" in tech_name:
         df = biochar_pyrolysis_dea(df)
+
+    if tech_name == "methanol from biogas":
+        df = methanol_from_biogas_dea(df)
 
     if "biomethanation" in tech_name:
         df = biomethanation_dea(df)
@@ -1496,6 +1536,80 @@ def biomethanation_dea(df):
                 old_units[old_label], new_units[old_label]
             )
             df.rename(index={old_index: updated_index}, inplace=True)
+
+    return df
+
+def methanol_from_biogas_dea(df):
+    """
+    This function does:
+    - import DEA v15 data for methanol from biogas and hydrogen, sheet
+      "97 Methanol from biogas and hyd" (tri-reforming in an autothermal reformer:
+      oxygen oxidises CH4 and CO to supply the reforming heat, then dry + steam
+      reforming over an SMR catalyst, then methanol synthesis)
+    - recalculates cost and inputs per MW of H2 added (bus 0 is H2), matching
+      biomethanation_dea and the methanolisation convention
+
+    NOTE this is the TRI-reforming pathway, not bi-reforming with an electrically
+    heated reformer (eSMR). The DEA chapter describes both and states it "is chosen
+    to focus on the tri-reforming technology"; only that one is costed. The oxygen
+    input is the tell -- an eSMR needs none.
+    """
+    # The sheet states Specific investment, Fixed O&M and Variable O&M TWICE: once per
+    # MW-methanol and once per TPD. Both match the downstream selectors, and those
+    # blocks write only when exactly one row matches, so the duplicates must go first.
+    df.drop(df.loc[df.index.str.contains("TPD")].index, inplace=True)
+
+    # Fixed O&M carries nested brackets, "Fixed O&M [k EUR/[MW-methanol/year]]". The unit
+    # is parsed as the text between the LAST "[" and the LAST "]", so the nesting yields a
+    # malformed unit that matches nothing. It is also in kEUR while investment is in MEUR,
+    # which would otherwise compute FOM as 4000 %/year instead of 4.00.
+    fom_idx = df.index[df.index.str.contains("Fixed O&M")]
+    if not fom_idx.empty:
+        df.loc[fom_idx[0]] = df.loc[fom_idx[0]].astype(float) / 1000.0
+        df.rename(index={fom_idx[0]: "Fixed O&M [MEUR/MW-methanol/year]"}, inplace=True)
+
+    # Everything on this sheet is per ton of methanol; rebase to per MWh of H2 input.
+    # match on words, not on bracket form: the unit delimiters are rewritten at various
+    # points in the pipeline, so "[MWh/ton-methanol]" is not a reliable anchor.
+    h2_idx = df.index[
+        df.index.str.startswith("Hydrogen") & df.index.str.contains("MWh")
+    ]
+    if h2_idx.empty:
+        raise ValueError(
+            "methanol_from_biogas_dea: no 'Hydrogen ... MWh ...' row found; "
+            f"index is {list(df.index)}"
+        )
+    h2_per_ton = float(df.loc[h2_idx[0]].astype(float).iloc[0])
+    meoh_lhv = 19.9 / 3.6  # MWh_MeOH per ton, sheet's own "Specific energy methanol content"
+    meoh_per_h2 = meoh_lhv / h2_per_ton  # MWh_MeOH per MWh_H2
+
+    # costs are per MW-methanol -> per MW_H2
+    cost_idx = df.index[df.index.str.contains("EUR")]
+    df.loc[cost_idx] = df.loc[cost_idx].astype(float) * meoh_per_h2
+    df.index = [
+        i.replace("MW-methanol", "MW_H2").replace("MWh-methanol", "MWh_H2")
+        if i in cost_idx else i
+        for i in df.index
+    ]
+
+    # inputs/outputs per ton-methanol -> per MWh_H2, with recognised labels and units
+    rebase = {
+        "Biogas [MWh/ton-methanol]":      ("Biogas Consumption", "MWh_biogas/MWh_H2"),
+        "Electricity [MWh/ton-methanol]": ("El-Input",           "MWh_e/MWh_H2"),
+        "Net steam [MWh/ton-methanol]":   ("Heat Input",         "MWh_th/MWh_H2"),
+        "Oxygen [ton/ton-methanol]":      ("Oxygen Input",       "t_O2/MWh_H2"),
+        "Water [ton/ton-methanol]":       ("Water Output",       "t_H2O/MWh_H2"),
+    }
+    for old, (label, unit) in rebase.items():
+        stem = old.split(" [")[0]
+        m = df.index[df.index.str.startswith(stem) & df.index.str.contains("ton-methanol")]
+        if m.empty:
+            continue
+        df.loc[m[0]] = df.loc[m[0]].astype(float) / h2_per_ton
+        df.rename(index={m[0]: f"{label} [{unit}]"}, inplace=True)
+
+    # methanol output per MWh_H2 (the sheet gives MWh/MWh total input)
+    df.loc["Methanol Output [MWh_MeOH/MWh_H2]"] = meoh_per_h2
 
     return df
 

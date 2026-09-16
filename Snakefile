@@ -20,6 +20,11 @@ rule compile_cost_assumptions:
         dea_transport="inputs/energy_transport_data_sheet_dec_2017.xlsx",
         dea_vehicles="inputs/data_sheets_for_commercial_freight_and_passenger_transport_0.xlsx",
         dea_renewable_fuels="inputs/data_sheets_for_renewable_fuels.xlsx",
+        # v15 of the same catalogue. Added for technologies that exist ONLY in v15
+        # (currently "methanol from biogas and hydrogen"). Both editions are read;
+        # get_sheet_location prefers an EXACT sheet-name match so existing mappings
+        # keep resolving to the edition they were written against.
+        dea_renewable_fuels_15="inputs/data_sheets_for_renewable_fuels_15_with_index_alldata_long.xlsx",
         dea_storage="inputs/technology_data_catalogue_for_energy_storage.xlsx",
         dea_generation="inputs/technology_data_for_el_and_dh.xlsx",
         dea_heating="inputs/technologydatafor_heating_installations_marts_2018.xlsx",
