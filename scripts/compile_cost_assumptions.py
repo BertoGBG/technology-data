@@ -910,6 +910,10 @@ def get_data_DEA(
 
     if tech_name == "methanolisation":
         df.drop(df.loc[df.index.str.contains("1,000 t Methanol")].index, inplace=True)
+        # DEA sheet 98 states Fixed O&M twice, per MW-methanol/year AND per 1,000 TPD/year.
+        # Both match the FOM unit filter below, which writes only when exactly one row
+        # matches -- so leaving this in silently drops FOM. Mirrors upstream.
+        df.drop(df.loc[df.index.str.contains("TPD")].index, inplace=True)
 
     if tech_name == "Fischer-Tropsch":
         df.drop(df.loc[df.index.str.contains("l FT Liquids")].index, inplace=True)
@@ -1004,6 +1008,14 @@ def get_data_DEA(
 
     if "solid biomass power" in tech_name:
         df.index = df.index.str.replace("EUR/MWeh", "EUR/MWh")
+
+    if "methanolisation" in tech_name:
+        # The DEA label nests brackets: "Fixed O&M (EUR/[MW-methanol/year])". The unit is
+        # parsed as the text between the LAST "(" and the LAST ")" after brackets are
+        # converted to parentheses, so the nesting yields a malformed "MW-methanol/year)"
+        # that matches nothing in the FOM filter -- and FOM is then silently dropped.
+        # Removing the inner brackets first gives a clean "EUR/MW_MeOH/year". Mirrors upstream.
+        df.index = df.index.str.replace("[MW-methanol/year]", "MW_MeOH/year")
 
     if "biochar pyrolysis" in tech_name:
         df = biochar_pyrolysis_dea(df)
@@ -2421,6 +2433,10 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 # For current data, the FOM values for central water pit storage are too high by a factor of 1000.
                 # See issue: https://github.com/PyPSA/technology-data/issues/203
                 fixed[years] /= 1000  # in €/MWhCapacity/year
+            if tech_name == "Fischer-Tropsch":
+                fixed[years] *= (
+                    8000  # conversion from €/MWh to €/MW/year, assuming 8000 full load hours
+                )
             if len(fixed) == 1:
                 fixed["parameter"] = "fixed"
                 clean_df[tech_name] = pd.concat([clean_df[tech_name], fixed])
