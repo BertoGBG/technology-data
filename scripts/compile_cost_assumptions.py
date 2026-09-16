@@ -1608,6 +1608,10 @@ def methanol_from_biogas_dea(df):
         df.loc[m[0]] = df.loc[m[0]].astype(float) / h2_per_ton
         df.rename(index={m[0]: f"{label} [{unit}]"}, inplace=True)
 
+    # the hydrogen row IS the basis, so on an H2 basis it is 1.0 by construction
+    df.loc[h2_idx[0]] = df.loc[h2_idx[0]].astype(float) / h2_per_ton
+    df.rename(index={h2_idx[0]: "Hydrogen Input [MWh_H2/MWh_H2]"}, inplace=True)
+
     # methanol output per MWh_H2 (the sheet gives MWh/MWh total input)
     df.loc["Methanol Output [MWh_MeOH/MWh_H2]"] = meoh_per_h2
 
@@ -2659,6 +2663,9 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
                 | (df.index.str.contains("CO2 Input"))
                 | (df.index.str.contains("SNG Output"))
                 | (df.index.str.contains("Biogas Consumption"))
+                | (df.index.str.contains("Oxygen Input"))
+                | (df.index.str.contains("Water Output"))
+                | (df.index.str.contains("Heat Input"))
                 | (df.index.str.contains("Methane Output"))
                 | (df.index == ("Hydrogen"))
             )
@@ -2887,6 +2894,22 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
             ].copy()
             biogas_input["parameter"] = "biogas-input"
             clean_df[tech_name] = pd.concat([clean_df[tech_name], biogas_input])
+
+        elif tech_name == "methanol from biogas":
+            for label, param in [
+                ("Hydrogen Input", "hydrogen-input"),
+                ("Biogas Consumption", "biogas-input"),
+                ("El-Input", "electricity-input"),
+                ("Heat Input", "heat-input"),
+                ("Oxygen Input", "oxygen-input"),
+                ("Water Output", "water-output"),
+                ("Methanol Output", "methanol-output"),
+            ]:
+                rows = efficiency[efficiency.index.str.contains(label)].copy()
+                if rows.empty:
+                    continue
+                rows["parameter"] = param
+                clean_df[tech_name] = pd.concat([clean_df[tech_name], rows])
 
         elif tech_name == "methanation biogas":
             h2_input = efficiency[
