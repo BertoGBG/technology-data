@@ -2745,10 +2745,9 @@ def add_perennials_refining(
     years: list,
     sheet_names_dict: dict,
     new_technology_dataframe: pd.DataFrame,
-    technology_dataframe: pd.DataFrame,
 ) -> pd.DataFrame:
     """
-    Add perennials + green biorefining (GBR) incl. biogas production plant.
+    Add perennials + green biorefining (GBR) excl. biogas production plant.
 
     It considers purchase of raw materials (perennials) and sales of other products
     (protein concentrate and biogas feedstock) in the VOM.
@@ -2762,8 +2761,6 @@ def add_perennials_refining(
         (Used for "further description" to match repository conventions.)
     new_technology_dataframe : pandas.DataFrame
         DataFrame to be filled/updated with the new technology data.
-    technology_dataframe : pandas.DataFrame
-        Existing technology data cost assumptions (used to reference e.g. biogas CAPEX).
 
     Returns
     -------
@@ -2801,22 +2798,9 @@ def add_perennials_refining(
     electricity_input_flow = 7.33 / 100 * perennials_input_flow
 
     # --- CAPEX ---
-    # Assume the downstream biogas plant can run year-round from stored feedstock:
-    capacity_ratio_biogas_gbr = flh_y / 8760  # < 1
-
-    # Reference biogas investment from existing data (unit must be consistent with your scaling below)
-    biogas_investment_2020 = technology_dataframe.loc[("biogas", "investment"), 2020]
-
-    # Additional CAPEX to scale plant from seasonal operation to year-round:
-    # (1/ratio - 1) is positive when ratio<1.
-    investment_biogas_adjusted = (
-        biogas_investment_2020
-        * (biogas_output_flow / perennials_input_flow)
-        * (1 / capacity_ratio_biogas_gbr - 1)
-    )
-
-    # Base GBR investment from R1 Table 4, divided by input capacity (tDM/h)
-    investment = 9.33e6 / (40 * DM_perennials) + investment_biogas_adjusted
+    # Biogas plant is excluded, as PyPSA-Eur charges it in "biogas to gas".
+    # GBR investment from R1 Table 4, divided by input capacity (tDM/h)
+    investment = 9.33e6 / (40 * DM_perennials)
 
     # --- OPEX / VOM ---
     protein_price = 535  # EUR/t (R1)
@@ -2872,7 +2856,7 @@ def add_perennials_refining(
 
     # Per-variable descriptions (optional but often nice)
     new_technology_dataframe.loc[(tech_name, "investment"), "further description"] = (
-        "DM (Dry Matter or perennial crops). The investment includes green biorefinery plant and a scaleup in capacity for biogas plant without upgrading, Table 4"
+        "DM (Dry Matter or perennial crops). The investment includes the green biorefinery plant only, not the biogas plant, Table 4"
     )
     new_technology_dataframe.loc[(tech_name, "VOM"), "further description"] = (
         "Includes purchase of perennials and revenue from sales of protein concentrate; "
@@ -4253,7 +4237,7 @@ if __name__ == "__main__":
     # add carbon capture
     data = add_carbon_capture(years_list, dea_sheet_names, data, tech_data)
     # add perennials and green biorefining
-    data = add_perennials_refining(years_list, dea_sheet_names, data, data)
+    data = add_perennials_refining(years_list, dea_sheet_names, data)
 
     # adjust for inflation
     for x in data.index.get_level_values("technology"):
