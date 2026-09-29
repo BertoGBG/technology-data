@@ -1404,9 +1404,9 @@ def biochar_pyrolysis_dea(df):
     )  # LHV feedstock (MWh /t feedstock)
 
     # mass ratio between feedstock and solid biomass
-    pyrolysis_feedstock_biomass_mass_ratio = pyrolysis_feedstock_moisture_content / (
+    pyrolysis_feedstock_biomass_mass_ratio = (1 - biomass_moisture_content) / (
         1 - pyrolysis_feedstock_moisture_content
-    ) + (1 - biomass_moisture_content)  # (t_feedstock / t_biomass) after drying
+    )  # (t_feedstock / t_biomass) after drying
     pyrolysis_feedstock_biomass_energy_ratio = (
         pyrolysis_feedstock_biomass_mass_ratio
         * pyrolysis_feedstock_specific_energy
