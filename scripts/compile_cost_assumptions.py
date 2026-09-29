@@ -2762,22 +2762,35 @@ def add_description(
             " grid connection costs subtracted from investment costs"
         )
 
-    biochar_comment = (
-        ". Reference unit is t_CO2 sequestered for >100 years (not t_CO2 emitted)."
-        " Solid biomass with 18 GJ/t_DM LHV, 50% carbon on dry basis and 15%"
-        " moisture, dried to 10% before pyrolysis. 50% of the biomass carbon"
-        " ends up in biochar (DEA, straw) and 70% of the biochar carbon is"
-        " stable for >100 years when spread on soil"
-        " (Fuhrman et al. 2023, https://doi.org/10.1038/s41558-023-01604-9),"
-        " i.e. 35% of the biomass carbon is sequestered. Pyrolysis oil and gas"
-        " are assumed to be combusted for heat. DEA values per MW output are"
-        " converted via the total output per MWh_biomass and the biomass-input."
-    )
+    biochar_comments = {
+        "biomass-input": (
+            ". Per t_CO2 sequestered for >100 years (not t_CO2 emitted)."
+            " Solid biomass with 18 GJ/t_DM LHV, 50% carbon on dry basis and 15%"
+            " moisture, dried to 10% before pyrolysis. 50% of the biomass carbon"
+            " ends up in biochar (DEA, straw) and 70% of the biochar carbon is"
+            " stable for >100 years when spread on soil"
+            " (Fuhrman et al. 2023, https://doi.org/10.1038/s41558-023-01604-9),"
+            " i.e. 35% of the biomass carbon is sequestered."
+        ),
+        "investment": (
+            ". Converted from DEA per MW output via the total output per"
+            " MWh_biomass and the biomass-input."
+        ),
+        "VOM": (
+            ". Converted from DEA per MWh output via the total output per"
+            " MWh_biomass and the biomass-input."
+        ),
+        "heat-output": (
+            ". Pyrolysis oil and gas are assumed to be combusted for heat."
+            " Per t_CO2 sequestered, see biomass-input."
+        ),
+        "electricity-input": ". Per t_CO2 sequestered, see biomass-input.",
+    }
     if "biochar pyrolysis" in technology_dataframe.index:
-        technology_dataframe.loc["biochar pyrolysis", "further description"] = (
-            technology_dataframe.loc["biochar pyrolysis", "further description"]
-            + biochar_comment
-        ).values
+        for parameter, comment in biochar_comments.items():
+            technology_dataframe.loc[
+                ("biochar pyrolysis", parameter), "further description"
+            ] += comment
 
     return technology_dataframe
 
