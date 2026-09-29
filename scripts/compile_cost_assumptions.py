@@ -2360,7 +2360,7 @@ def order_data(years: list, technology_dataframe: pd.DataFrame) -> pd.DataFrame:
             efficiency_biochar_mass = efficiency[
                 efficiency.index.str.contains("yield biochar")
             ].copy()
-            efficiency_biochar_mass["parameter"] = "yield-biochar"
+            efficiency_biochar_mass["parameter"] = "biochar-output"
             clean_df[tech_name] = pd.concat(
                 [clean_df[tech_name], efficiency_biochar_mass]
             )
@@ -2763,17 +2763,22 @@ def add_description(
             " grid connection costs subtracted from investment costs"
         )
 
-    # add comment for biochar pyrolysis biomass input and investment
-    biochar_sequestration_comment = (
-        " Only 70% of carbon in biochar is assumed to be sequestered"
-        " when spread on soil"
+    biochar_comment = (
+        ". Reference unit is t_CO2 sequestered for >100 years (not t_CO2 emitted)."
+        " Solid biomass with 18 GJ/t_DM LHV, 50% carbon on dry basis and 15%"
+        " moisture, dried to 10% before pyrolysis. 50% of the biomass carbon"
+        " ends up in biochar (DEA, straw) and 70% of the biochar carbon is"
+        " stable for >100 years when spread on soil"
+        " (Fuhrman et al. 2023, https://doi.org/10.1038/s41558-023-01604-9),"
+        " i.e. 35% of the biomass carbon is sequestered. Pyrolysis oil and gas"
+        " are assumed to be combusted for heat. DEA values per MW output are"
+        " converted via the total output per MWh_biomass and the biomass-input."
     )
-    technology_dataframe.loc[
-        ("biochar pyrolysis", "biomass-input"), "further description"
-    ] += biochar_sequestration_comment
-    technology_dataframe.loc[
-        ("biochar pyrolysis", "investment"), "further description"
-    ] += biochar_sequestration_comment
+    if "biochar pyrolysis" in technology_dataframe.index:
+        technology_dataframe.loc["biochar pyrolysis", "further description"] = (
+            technology_dataframe.loc["biochar pyrolysis", "further description"]
+            + biochar_comment
+        ).values
 
     return technology_dataframe
 
