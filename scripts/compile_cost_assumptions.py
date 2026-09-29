@@ -2772,7 +2772,7 @@ def add_perennials_refining(
     tech_name = "perennials refining"
 
     # References (store also in "source" below)
-    source_r1 = "https://doi.org/10.1016/B978-0-323-95879-0.50147-8"
+    source_r1 = "Andrade, Ambye-Jensen: Process Integration and Techno-Economic Assessment of a Green Biorefinery Demonstration Scale Platform for Leaf Protein Production (2022), https://doi.org/10.1016/B978-0-323-95879-0.50147-8"
 
     # --- Constants ---
     LHV_ch4 = 50 / 3.6  # MWh/t_CH4
@@ -2790,10 +2790,8 @@ def add_perennials_refining(
     protein_output_flow = 1.4  # t_DM/h (protein concentrate on DM basis)
     protein_output_annual = protein_output_flow * flh_y  # t_DM/y
 
-    # (t_biogas / t_DM) * (mass fraction CH4) * (MWh/t_CH4)
-    biogas_output_flow = (
-        0.29 * ch4_mass_fraction_in_biogas * LHV_ch4
-    )  # MWh/h (per t_DM/h basis)
+    # (t_biogas/h) * (mass fraction CH4) * (MWh/t_CH4)
+    biogas_output_flow = 0.29 * ch4_mass_fraction_in_biogas * LHV_ch4  # MW_CH4
 
     # electricity input
     electricity_input_flow = 7.33 / 100 * perennials_input_flow
@@ -2817,7 +2815,7 @@ def add_perennials_refining(
 
     # --- Write to dataframe (match repo conventions) ---
     new_technology_dataframe.loc[(tech_name, "investment"), years] = investment
-    new_technology_dataframe.loc[(tech_name, "investment"), "unit"] = "EUR/(tDM h)"
+    new_technology_dataframe.loc[(tech_name, "investment"), "unit"] = "EUR/(t_DM/h)"
     new_technology_dataframe.loc[(tech_name, "investment"), "currency_year"] = 2020
 
     new_technology_dataframe.loc[(tech_name, "lifetime"), years] = 25
@@ -2828,34 +2826,34 @@ def add_perennials_refining(
     new_technology_dataframe.loc[(tech_name, "FOM"), "currency_year"] = 2020
 
     new_technology_dataframe.loc[(tech_name, "VOM"), years] = VOM
-    new_technology_dataframe.loc[(tech_name, "VOM"), "unit"] = "EUR/tDM"
+    new_technology_dataframe.loc[(tech_name, "VOM"), "unit"] = "EUR/t_DM"
     new_technology_dataframe.loc[(tech_name, "VOM"), "currency_year"] = 2020
 
     # Outputs/inputs per tDM
     new_technology_dataframe.loc[(tech_name, "biogas-output"), years] = (
         biogas_output_flow / perennials_input_flow
     )
-    new_technology_dataframe.loc[(tech_name, "biogas-output"), "unit"] = "MWh/tDM"
+    new_technology_dataframe.loc[(tech_name, "biogas-output"), "unit"] = "MWh/t_DM"
 
     new_technology_dataframe.loc[(tech_name, "electricity-input"), years] = (
         electricity_input_flow / perennials_input_flow
     )
     new_technology_dataframe.loc[(tech_name, "electricity-input"), "unit"] = (
-        "MWh/tDM"  # verify!
+        "MWh/t_DM"  # verify!
     )
 
     # Metadata (apply to whole tech row, like add_carbon_capture)
     new_technology_dataframe.loc[tech_name, "source"] = source_r1
     new_technology_dataframe.loc[tech_name, "further description"] = (
-        sheet_names_dict.get(tech_name, "")
+        "DM: dry matter of perennial crops."
     )
 
     # Per-variable descriptions (optional but often nice)
     new_technology_dataframe.loc[(tech_name, "investment"), "further description"] = (
-        "DM (Dry Matter or perennial crops). The investment includes the green biorefinery plant only, not the biogas plant, Table 4"
+        "DM: dry matter of perennial crops. The investment includes the green biorefinery plant only, not the biogas plant, Table 4"
     )
     new_technology_dataframe.loc[(tech_name, "VOM"), "further description"] = (
-        "Includes purchase of perennials and revenue from sales of protein concentrate (Tables 2 -4)"
+        "DM: dry matter of perennial crops. Includes purchase of perennials and revenue from sales of protein concentrate (Tables 2 -4)"
     )
     new_technology_dataframe.loc[(tech_name, "FOM"), "further description"] = (
         "Labor and maintenance of 0.45 MEUR/year relative to investment of 9.33 MEUR, Table 4"
