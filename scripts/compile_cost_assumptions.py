@@ -2807,18 +2807,13 @@ def add_perennials_refining(
     protein_price = 535  # EUR/t (R1)
     perennial_cost = 130  # EUR/tDM (R1)
 
-    # EUR/tDM (R1 Table 4): "labor and maintenance" converted to per tDM)
-    other_VOM = 0.45e6 / (40 * DM_perennials * flh_y)
-
-    # EUR/tDM: cost of perennials - revenue from protein + other variable costs
-    VOM = (
-        perennial_cost
-        - protein_price * (protein_output_annual / perennials_input_annual)
-        + other_VOM
+    # EUR/tDM: cost of perennials - revenue from protein
+    VOM = perennial_cost - protein_price * (
+        protein_output_annual / perennials_input_annual
     )
 
-    # Own assumption
-    FOM = 0  # %/year
+    # "labor and maintenance" (EUR/year, R1 Table 4) relative to investment
+    FOM = 0.45e6 / 9.33e6 * 100  # %/year
 
     # --- Write to dataframe (match repo conventions) ---
     new_technology_dataframe.loc[(tech_name, "investment"), years] = investment
@@ -2860,8 +2855,10 @@ def add_perennials_refining(
         "DM (Dry Matter or perennial crops). The investment includes the green biorefinery plant only, not the biogas plant, Table 4"
     )
     new_technology_dataframe.loc[(tech_name, "VOM"), "further description"] = (
-        "Includes purchase of perennials and revenue from sales of protein concentrate; "
-        "incl. wages/maintenance/aux costs (Tables 2 -4)"
+        "Includes purchase of perennials and revenue from sales of protein concentrate (Tables 2 -4)"
+    )
+    new_technology_dataframe.loc[(tech_name, "FOM"), "further description"] = (
+        "Labor and maintenance of 0.45 MEUR/year relative to investment of 9.33 MEUR, Table 4"
     )
 
     return new_technology_dataframe
