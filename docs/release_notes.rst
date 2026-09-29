@@ -19,6 +19,8 @@ Upcoming Release
 
 * Adding `Enhanced Weathering` (or Rocks) as CDR technology. (https://github.com/PyPSA/technology-data/pull/256)
 
+* Add cost assumptions for water network infrastructure: water pipeline HDPE and water pipeline booster pump (https://github.com/PyPSA/technology-data/pull/277)
+
 `v0.15.0 <https://github.com/PyPSA/technology-data/releases/tag/v0.15.0>`__ (9th June 2026)
 ================================================================================================
 
