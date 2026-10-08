@@ -4059,32 +4059,30 @@ def add_energy_storage_database(
     return pd.concat([cost_dataframe, df]), tech_names
 
 
-def add_bioliquids_upstream_emissions(
+def add_bioliquids_crop_feedstock(
     years: list, technology_dataframe: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    The function adds the upstream (cultivation) CO2 intensity of 1st-generation
-    bioliquids, per MWh of fuel, to "bioethanol crops" and "biodiesel crops".
+    The function adds the crop feedstock data of 1st-generation bioliquids to
+    "bioethanol crops" and "biodiesel crops", which PyPSA-Eur combines with
+    per-country cultivation emissions (JRC ENSPRESO, Ruiz et al. 2015,
+    Table 20, in kgCO2eq per GJ of feedstock):
 
-    Per crop-to-fuel process, the cultivation emissions per GJ of feedstock
-    (JRC ENSPRESO, Ruiz et al. 2015, Table 20) are converted back to per tonne
-    of feedstock with the heating values that report uses (Table 26), and then
-    to per GJ of fuel with the crop-to-fuel mass efficiencies:
+    - "feedstock-input": GJ of crop feedstock per GJ of fuel, on the heating
+      value basis of the ENSPRESO report (Table 26), so that
 
-        EF_fuel = EF_feedstock * LHV_feedstock / (efficiency * LHV_fuel)
+          EF_fuel = EF_feedstock * feedstock-input * crop-based share
 
-    All cultivation emissions are allocated to the fuel (none to co-products
-    such as distillers' grains or rapeseed meal), so the values are an upper
-    bound. Only the crop-based part of each fuel carries emissions; biofuels
-    from waste and residues count as zero:
+      feedstock-input = LHV_feedstock / (efficiency * LHV_fuel), with the
+      starchy-crop (wheat) process for bioethanol and the rapeseed process for
+      biodiesel.
+    - "crop-based share": share of the fuel made from crops; biofuels from
+      waste and residues have no cultivation emissions. Bioethanol: 86% of EU
+      ethanol (DG AGRI, 2020-2022). Biodiesel: food and feed crop biofuels
+      minus crop-based bioethanol, divided by all biodiesels, bio jet and other
+      liquid biofuels in transport in 2021 (Eurostat SHARES).
 
-    - bioethanol crops: the starchy-crop process value applied to the
-      crop-based share of EU ethanol (DG AGRI, 2020-2022).
-    - biodiesel crops: the rapeseed process value applied to the crop-based
-      share of EU biodiesels, bio jet and other liquid biofuels in transport in
-      2021 (Eurostat SHARES): food and feed crop biofuels minus crop-based
-      bioethanol, divided by all biodiesels.
-
+    All cultivation emissions are allocated to the fuel (none to co-products).
     The input parameters from manual_input.csv are removed afterwards.
 
     Parameters
@@ -4106,83 +4104,81 @@ def add_bioliquids_upstream_emissions(
     # fuel heating values (GJ/t), JRC Technical Report doi:10.2760/69179
     lhv_fuel = {"ethanol": 26.81, "biodiesel": 36.7}
 
-    # crop-to-fuel mass efficiencies on the tonne basis of the feedstock LHV;
-    # wheat from 13.5% moisture to the 14% Eurostat standard humidity
-    efficiency = {
-        "ethanol from wheat": value("ethanol from wheat", "efficiency")
-        * (1 - 0.14)
-        / (1 - 0.135),
-        "biodiesel from rapeseed": value("biodiesel from rapeseed", "efficiency"),
-    }
-    fuel = {"ethanol from wheat": "ethanol", "biodiesel from rapeseed": "biodiesel"}
-
-    # kgCO2eq/GJ_fuel per process
-    emissions = {
-        tech: value(tech, "feedstock cultivation emissions")
-        * value(tech, "feedstock LHV")
-        / (efficiency[tech] * lhv_fuel[fuel[tech]])
-        for tech in efficiency
+    # GJ feedstock per GJ fuel; wheat efficiency moved from 13.5% moisture to the
+    # 14% Eurostat standard humidity of the feedstock tonnes
+    feedstock_input = {
+        "bioethanol crops": value("ethanol from wheat", "feedstock LHV")
+        / (
+            value("ethanol from wheat", "efficiency")
+            * (1 - 0.14)
+            / (1 - 0.135)
+            * lhv_fuel["ethanol"]
+        ),
+        "biodiesel crops": value("biodiesel from rapeseed", "feedstock LHV")
+        / (value("biodiesel from rapeseed", "efficiency") * lhv_fuel["biodiesel"]),
     }
 
     share_crop_ethanol = value("bioethanol crops", "crop-based share")
-    bioethanol = share_crop_ethanol * emissions["ethanol from wheat"]
+    share_crop_biodiesel = (
+        value("biodiesel crops", "transport use food and feed crop biofuels")
+        - share_crop_ethanol * value("biodiesel crops", "transport use biogasoline")
+    ) / value("biodiesel crops", "transport use biodiesels")
 
-    crop_biofuels = value(
-        "biodiesel crops", "transport use food and feed crop biofuels"
-    ) - share_crop_ethanol * value("biodiesel crops", "transport use biogasoline")
-    share_crop_biodiesel = crop_biofuels / value(
-        "biodiesel crops", "transport use biodiesels"
-    )
-    biodiesel = share_crop_biodiesel * emissions["biodiesel from rapeseed"]
-
-    inputs = [
-        "feedstock cultivation emissions",
-        "feedstock LHV",
-        "crop-based share",
-        "transport use food and feed crop biofuels",
-        "transport use biogasoline",
-        "transport use biodiesels",
-    ]
     technology_dataframe = technology_dataframe.drop(
-        index=inputs, level="parameter", errors="ignore"
+        index=[
+            "feedstock LHV",
+            "transport use food and feed crop biofuels",
+            "transport use biogasoline",
+            "transport use biodiesels",
+        ],
+        level="parameter",
+        errors="ignore",
     )
 
-    descriptions = {
+    process = {
+        "bioethanol crops": "starchy crops (barley, wheat, maize, oats, rye) to ethanol",
+        "biodiesel crops": "rapeseed to biodiesel",
+    }
+    source = (
+        "Calculated from Ruiz et al. (2015), JRC-EU-TIMES bioenergy potentials, "
+        "EUR 27575 EN, doi:10.2790/39014 (Table 26) and JRC doi:10.2760/69179. "
+        "See 'further description'."
+    )
+    for tech, ratio in feedstock_input.items():
+        idx = (tech, "feedstock-input")
+        technology_dataframe.loc[idx, years] = ratio.values
+        technology_dataframe.loc[idx, "unit"] = "MWh_feedstock/MWh_th"
+        technology_dataframe.loc[idx, "source"] = source
+        technology_dataframe.loc[idx, "further description"] = (
+            f"Crop feedstock per unit of fuel for {process[tech]}, on the heating "
+            "value basis of ENSPRESO (Table 26), for use with the ENSPRESO Table 20 "
+            "cultivation emissions per GJ of feedstock."
+        )
+
+    technology_dataframe.loc[("biodiesel crops", "crop-based share"), years] = (
+        share_crop_biodiesel.values
+    )
+    shares = {
         "bioethanol crops": (
-            bioethanol,
-            "Cultivation emissions of the feedstock per MWh of ethanol: starchy crops "
-            "(barley, wheat, maize, oats, rye) applied to the crop-based share "
-            f"({share_crop_ethanol.iloc[0]:.0%}) of EU ethanol (DG AGRI, 2020-2022).",
+            "European Commission DG AGRI, EU agricultural outlook 2023-2035 (2023), p. 32",
+            "Share of crops (cereals, sugar beet and molasses) in EU ethanol "
+            "feedstock, 2020-2022 average, by ethanol volume. The rest is waste "
+            "and residues.",
         ),
         "biodiesel crops": (
-            biodiesel,
-            "Cultivation emissions of the feedstock per MWh of FAME/HVO: rapeseed value "
-            f"applied to the crop-based share ({share_crop_biodiesel.iloc[0]:.1%}) of "
-            "EU biodiesels in transport in 2021 (Eurostat SHARES); used cooking oil, "
-            "animal fats and other residues count as zero.",
+            "Calculated from Eurostat, SHARES 2024 detailed results (v2024.120925), "
+            "sheet TRANSPORT, EU27, 2021. See 'further description'.",
+            "Share of EU biodiesels, bio jet and other liquid biofuels in transport "
+            "made from crops in 2021: (food and feed crop biofuels 10097.9 ktoe - "
+            "0.86 x biogasoline 3031.6 ktoe) / 13570.6 ktoe. The rest is used "
+            "cooking oil, animal fats and other residues.",
         ),
     }
-    for tech, (kg_per_gj, description) in descriptions.items():
-        technology_dataframe.loc[(tech, "upstream CO2 intensity"), years] = (
-            kg_per_gj * 3.6 / 1e3
-        ).values
-        technology_dataframe.loc[(tech, "upstream CO2 intensity"), "unit"] = (
-            "tCO2eq/MWh_th"
-        )
-        technology_dataframe.loc[(tech, "upstream CO2 intensity"), "source"] = (
-            "Calculated from Ruiz et al. (2015), JRC-EU-TIMES bioenergy potentials, "
-            "EUR 27575 EN, doi:10.2790/39014 (Tables 20, 26); Eurostat SHARES 2024; "
-            "DG AGRI EU agricultural outlook 2023-2035; JRC doi:10.2760/69179. "
-            "See 'further description'."
-        )
-        technology_dataframe.loc[
-            (tech, "upstream CO2 intensity"), "further description"
-        ] = (
-            description
-            + " Per MWh_th of fuel. Cultivation only (soil N2O, soil CO2, fertiliser "
-            "production, mechanisation); excludes indirect land-use change and "
-            "processing; no allocation to co-products (upper bound)."
-        )
+    for tech, (src, description) in shares.items():
+        idx = (tech, "crop-based share")
+        technology_dataframe.loc[idx, "unit"] = "per unit"
+        technology_dataframe.loc[idx, "source"] = src
+        technology_dataframe.loc[idx, "further description"] = description
 
     return technology_dataframe
 
@@ -4291,8 +4287,8 @@ if __name__ == "__main__":
     data = pd.concat([data, costs_ISE.loc[["Gasnetz"]]], sort=True)
 
     data = add_manual_input(data)
-    # add upstream CO2 intensity of 1st-generation bioliquids
-    data = add_bioliquids_upstream_emissions(years_list, data)
+    # add crop feedstock data of 1st-generation bioliquids
+    data = add_bioliquids_crop_feedstock(years_list, data)
     # add costs for home batteries
 
     if snakemake.config["energy_storage_database"].get("ewg_home_battery", True):

@@ -19,7 +19,7 @@ Upcoming Release
 
 * Add cost assumptions for water network infrastructure: water pipeline HDPE and water pipeline booster pump (https://github.com/PyPSA/technology-data/pull/277)
 
-* Add ``upstream CO2 intensity`` (tCO2eq/MWh_th of fuel) for ``bioethanol crops`` and ``biodiesel crops``: cultivation emissions of 1st-generation biofuel feedstocks from JRC ENSPRESO (Ruiz et al. 2015), applied to the crop-based share of EU bioethanol (DG AGRI) and biodiesels (Eurostat SHARES). Adds the crop-to-fuel efficiencies ``ethanol from wheat`` and ``biodiesel from rapeseed``.
+* Add crop feedstock data of 1st-generation bioliquids to ``bioethanol crops`` and ``biodiesel crops``: ``feedstock-input`` (crop feedstock per unit of fuel, on the heating value basis of JRC ENSPRESO, Ruiz et al. 2015) and ``crop-based share`` (EU bioethanol from DG AGRI, biodiesels from Eurostat SHARES), to combine with per-country cultivation emissions. Adds the crop-to-fuel efficiencies ``ethanol from wheat`` and ``biodiesel from rapeseed``.
 
 `v0.15.0 <https://github.com/PyPSA/technology-data/releases/tag/v0.15.0>`__ (9th June 2026)
 ================================================================================================
